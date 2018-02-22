@@ -79,16 +79,17 @@
 
 
 
-<meta name="description" content="少一点功利主义的追求多一些不为什么的坚持">
-<meta property="og:type" content="website">
-<meta property="og:title" content="肖小粤的啵嗑">
-<meta property="og:url" content="http://shawnyxiao.github.io/categories/数据挖掘比赛/index.html">
+<meta name="description" content="题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。 思路 1：穷举最直接的思路就是：遍历 1~n，找出每个数字中 1 出现的次数。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【剑指Offer】面试题43：1~n整数中1出现的次数">
+<meta property="og:url" content="http://shawnyxiao.github.io/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="少一点功利主义的追求多一些不为什么的坚持">
+<meta property="og:description" content="题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。 思路 1：穷举最直接的思路就是：遍历 1~n，找出每个数字中 1 出现的次数。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-21T16:09:40.913Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="肖小粤的啵嗑">
-<meta name="twitter:description" content="少一点功利主义的追求多一些不为什么的坚持">
+<meta name="twitter:title" content="【剑指Offer】面试题43：1~n整数中1出现的次数">
+<meta name="twitter:description" content="题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。 思路 1：穷举最直接的思路就是：遍历 1~n，找出每个数字中 1 出现的次数。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个">
 
 
 
@@ -118,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://shawnyxiao.github.io/categories/数据挖掘比赛/"/>
+  <link rel="canonical" href="http://shawnyxiao.github.io/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/"/>
 
 
 
 
 
-  <title>分类: 数据挖掘比赛 | 肖小粤的啵嗑</title>
+  <title>【剑指Offer】面试题43：1~n整数中1出现的次数 | 肖小粤的啵嗑</title>
   
 
 
@@ -143,7 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -271,83 +272,188 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>数据挖掘比赛<small>分类</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://shawnyxiao.github.io/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="肖小粤">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/ShawnXiao.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="肖小粤的啵嗑">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2018/02/07/【数据挖掘比赛】企业经营退出风险预测/" itemprop="url">
-              
-                <span itemprop="name">【数据挖掘比赛】企业经营退出风险预测</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">【剑指Offer】面试题43：1~n整数中1出现的次数</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-02-07T13:06:44+08:00"
-              content="2018-02-07" >
-          02-07
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-20T14:30:47+08:00">
+                2018-02-20
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/剑指Offer/" itemprop="url" rel="index">
+                    <span itemprop="name">剑指Offer</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/" class="leancloud_visitors" data-flag-title="【剑指Offer】面试题43：1~n整数中1出现的次数">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
+      
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2018/01/17/【数据挖掘比赛】让AI当法官/" itemprop="url">
-              
-                <span itemprop="name">【数据挖掘比赛】让AI当法官</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-01-17T20:13:07+08:00"
-              content="2018-01-17" >
-          01-17
-        </time>
-      </div>
-
-    </header>
-  </article>
-
+      
+        <p>题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。</p>
+<h2 id="思路-1：穷举"><a href="#思路-1：穷举" class="headerlink" title="思路 1：穷举"></a>思路 1：穷举</h2><p>最直接的思路就是：<strong>遍历 1~n，找出每个数字中 1 出现的次数</strong>。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个位数不为 1；如果这个数字大于 10，则除以 10 之后再进行求余操作。</p>
+<p>我们来分析这个算法的时间复杂度，n 这个数字的十进制表示的长度为 $log_{10 }n$，因此求余除法操作的时间复杂度是 O(logn)，我们需要遍历 n 次，因此整个算法的时间复杂度是 O(nlogn)。这样的时间复杂度比较高，我们需要思考更快的算法。</p>
+<h2 id="思路-2：排列"><a href="#思路-2：排列" class="headerlink" title="思路 2：排列"></a>思路 2：排列</h2><p>我们把 n 设置的大一些，让 n=21345，以便于之后的分析。为了更好的阐述这个算法，我们先来就具体的例子来分析一遍。</p>
+<ol>
+<li>我们首先把分析对象分成两部分，1~21345 分成 1~19999 和 20000~21345</li>
+<li>先对第一部分 1~19999 进行分析。计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数。因此，1~19999 中，当万位为 1 时其余 4 位为任意数字的排列的个数为 $10*10*10*10=10^4=10000$；当千位为 1 时，万位只能取 0 或 1，其他位取任意数字，的排列的个数为 $2*10*10*10=2000$；同理，百位为 1、十位为 1、个位为 1 的排列次数都是 $2*10*10*10=2000$。因此，1~19999 中，总的排列的个数为 $10000+2000*4=18000$</li>
+<li>然后对第二部分 20000~21345 进行分析，因为我们将 1 出现的次数理解成十进制表示中某一位为 1 的排列的个数，所以 20000~21345 可以转换成 0~1345。于是这个部分就变成了求解 1~1345（0 去掉不影响）中 1 出现的次数</li>
+<li>对于 1~1345 我们可以根据步骤 1 和 2 递归的求解。把 1~1345 分成 1~999 和 1000~1345。效仿于第 2 步骤的分析，1~999 中 1 出现的次数为 $10*10*10=1000$。1000~1345 可以转换成 1~345 加上 345 次</li>
+<li>对于 1~345 我们可以根据步骤 1 和 2 递归的求解。把 1~345 分成 1~299 和 300~345。效仿于第 2 步骤的分析，1~299 中 1 出现的次数为 $10*10+2*3*10=260$。300~345 可以转换成 1~45</li>
+<li>对于 1~45 我们可以根据步骤 1 和 2 递归的求解。把 1~45 分成 1~39 和 40~45。效仿于第 2 步骤的分析，1~39 中 1 出现的次数为 $10+4=14$。40~45 可以转换成 1~5</li>
+<li>1~5 中 1 出现的次数为 1</li>
+<li>因此，1~21345 中 1 出现的次数为 $18000+1000+345+260+14+1=19620$</li>
+</ol>
+<p>根据以上的分析，我们将这个算法进行总结：<strong>计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数，因此我们可以使用递归的方法，将 n 从十进制表示的最高位到最低位一步一步计算 1 出现的次数</strong>。这个算法的递归深度是 $log\,n$，其他的操作都是常数级别的，因此总的时间复杂度为 $O(log\,n)$。</p>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/" rel="next" title="【剑指Offer】面试题42：连续子数组的最大和">
+                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题42：连续子数组的最大和
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -355,6 +461,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -375,8 +485,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -447,6 +566,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-1：穷举"><span class="nav-number">1.</span> <span class="nav-text">思路 1：穷举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-2：排列"><span class="nav-number">2.</span> <span class="nav-text">思路 2：排列</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -610,6 +745,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
