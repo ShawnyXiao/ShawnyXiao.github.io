@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。  例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。 思路 1：穷举最直接的思路就是：穷举数组的所有子数组的情况，然后计算它们的和，找出最大的">
+<meta name="description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【剑指Offer】面试题42：连续子数组的最大和">
-<meta property="og:url" content="http://shawnyxiao.github.io/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/index.html">
+<meta property="og:title" content="【剑指Offer】面试题44：数字序列中某一位的数字">
+<meta property="og:url" content="http://shawnyxiao.github.io/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。  例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。 思路 1：穷举最直接的思路就是：穷举数组的所有子数组的情况，然后计算它们的和，找出最大的">
+<meta property="og:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-22T06:41:20.725Z">
+<meta property="og:updated_time" content="2018-02-22T07:38:25.517Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="【剑指Offer】面试题42：连续子数组的最大和">
-<meta name="twitter:description" content="题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。  例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。 思路 1：穷举最直接的思路就是：穷举数组的所有子数组的情况，然后计算它们的和，找出最大的">
+<meta name="twitter:title" content="【剑指Offer】面试题44：数字序列中某一位的数字">
+<meta name="twitter:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://shawnyxiao.github.io/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/"/>
+  <link rel="canonical" href="http://shawnyxiao.github.io/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/"/>
 
 
 
 
 
-  <title>【剑指Offer】面试题42：连续子数组的最大和 | 肖小粤的啵嗑</title>
+  <title>【剑指Offer】面试题44：数字序列中某一位的数字 | 肖小粤的啵嗑</title>
   
 
 
@@ -286,7 +286,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://shawnyxiao.github.io/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/">
+    <link itemprop="mainEntityOfPage" href="http://shawnyxiao.github.io/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="肖小粤">
@@ -303,7 +303,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">【剑指Offer】面试题42：连续子数组的最大和</h1>
+          <h1 class="post-title" itemprop="name headline">【剑指Offer】面试题44：数字序列中某一位的数字</h1>
         
 
         <div class="post-meta">
@@ -315,8 +315,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-18T23:35:09+08:00">
-                2018-02-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T14:37:17+08:00">
+                2018-02-22
               </time>
             
 
@@ -355,7 +355,7 @@
 
           
           
-             <span id="/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/" class="leancloud_visitors" data-flag-title="【剑指Offer】面试题42：连续子数组的最大和">
+             <span id="/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/" class="leancloud_visitors" data-flag-title="【剑指Offer】面试题44：数字序列中某一位的数字">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -387,32 +387,18 @@
 
       
         <blockquote>
-<p>题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。</p>
+<p>题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。</p>
 </blockquote>
-<p>例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。</p>
-<h2 id="思路-1：穷举"><a href="#思路-1：穷举" class="headerlink" title="思路 1：穷举"></a>思路 1：穷举</h2><p>最直接的思路就是：<strong>穷举数组的所有子数组的情况，然后计算它们的和，找出最大的值</strong>。子数组的数量为 $\frac{n(n - 1)}{2}$，因此时间复杂度为 $O(n^2)$，这个时间复杂度是不能让人接受的，我们还得想想其他办法。</p>
-<h2 id="思路-2：举例分析数组的规律"><a href="#思路-2：举例分析数组的规律" class="headerlink" title="思路 2：举例分析数组的规律"></a>思路 2：举例分析数组的规律</h2><p>当我们没有什么思路时，我们可以举例来分析一下数组的规律。我们尝试从头到尾的逐个累加数组中的数字。初始化和为 0。</p>
+<h2 id="思路-1：穷举"><a href="#思路-1：穷举" class="headerlink" title="思路 1：穷举"></a>思路 1：穷举</h2><p>最直接的思路是：<strong>从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对应的数字，然后找出其中所对应的那一位数字</strong>。</p>
+<p>这个算法是极为简单的思路，时间复杂度可能达不到面试官的要求，我们还需要思考更快的算法。</p>
+<h2 id="思路-2：分析例子找规律"><a href="#思路-2：分析例子找规律" class="headerlink" title="思路 2：分析例子找规律"></a>思路 2：分析例子找规律</h2><p>我们一定要从 0 开始一个一个枚举数字吗？不一定。在到我们想要的数字之前，很多数字都是可以忽略的。基于这个想法，我们来分析具体的例子，看看如何忽略大部分不需要枚举的数字。为了说清楚这个算法，我们取 n=1001。因此，我们需要找出第 1001 位对应的数字。</p>
 <ol>
-<li>累加第一个数字 1。和为 1</li>
-<li>累加第二个数字 -2。和为 -1，小于 0</li>
-<li>累加第三个数字 3。和为 2。这个和比第三个数字的值还小，我们舍弃之前的子数组，从当前数字开始重新累加。这时，和为3</li>
+<li>0~9 这 10 个数字是一位数，$1001-10=991 \geq 0$，因此我们可以忽略这 10 个数字。我们从其后搜索第 991 位</li>
+<li>10~99 这 90 个数字是二位数，$991-90*2=811 \geq 0$，因此我们也可以忽略这 90 个数字。我们从其后搜索第 811 位</li>
+<li>100~999 这 900 个数字是三位数，$811-900*3=-1889&lt;0$，因此我们要找的数字肯定是出现在 100~999 中。</li>
+<li>由于 $811=270*3+1$，因此我们要找的数字是在 100~999 中的第 270 个（从 0 开始计数）数的第 1 位（从 0 开始计数），所以 1001 位对应的数字是 7（370 中的中间一位）</li>
 </ol>
-<p>从以上分析中，我们可以发现，一旦累加和小于 0 之后，以这个数为结尾的子数组对于求解和最大的子数组就没什么用了，这是应该舍弃，然后从将和归零，重新累加寻找和最大的子数组。</p>
-<ol>
-<li>累加第四个数字 10。和为 13</li>
-<li>累加第五个数字 -4。和为 9</li>
-<li>累加第六个数字 7。和为 16</li>
-<li>累加第七个数字 2。和为 18</li>
-<li>累加第八个数字 -5。和为 13</li>
-</ol>
-<p>每次累加一个数字其实就相当于在子数组中增加一个数字，计算和也就是计算这个子数组的和。从以上的分析中，我们可以发现，当累加到第七个数字时，和最大，此时的子数组为 {3, 10, -4, 7, 2}，该子数组的和 18 就是我们要找的最大和。</p>
-<p>因此，我们可以将思路总结一下：<strong>从头到尾的累加数组中的数字，当累加和小于 0 时，就舍弃此时的累加并重置和为当前数字；使用一个临时变量记录累加过程中计算的和的最大值</strong>。</p>
-<p>该算法只需要从头到尾的遍历一遍数组即可，因此时间复杂度是 O(n)。</p>
-<h2 id="思路-3：动态规划"><a href="#思路-3：动态规划" class="headerlink" title="思路 3：动态规划"></a>思路 3：动态规划</h2><p>一旦涉及到求最值的问题，一般都可以用动态规划来解。这道题希望求解最大值，并且求解的是数组的子数组的相关问题，可能会有重叠的子问题，可以使用动态规划来解。</p>
-<p>我们使用 f(i) 来表示以数组中第 i 个数字结尾的子数组的最大和，因此我们需要求解数组中以每个数字结尾的子数组的最大和的最大值，也就是 $max \, f(i), \, 0 \leq i \lt n$。状态转移方程满足：</p>
-<p>$$<br>f(i) =<br>\begin{cases}<br>pData[i], &amp; i=0 \lor f(i-1) \leq 0\\<br>f(i-1) + pData[i], &amp; i \neq 0 \land f(i-1)&gt;0<br>\end{cases}<br>$$</p>
-<p>这个公式表示：<strong>如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”</strong>。</p>
-<p>实际上，你仔细想想，思路 3 和思路 2 在本质上是相同的，只是表达方式不一样。这个思路的时间复杂度同样是 O(n)。</p>
+<p>根据以上例子的分析，我们可以将思路进行总结：<strong>首先找出是几位数，然后找出是哪个数，最后找出是这个数中的第几位</strong>。这个算法的时间复杂度小于 $O(log\,n)$，明显快于上一种算法。</p>
 
       
     </div>
@@ -437,8 +423,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/17/【剑指Offer】面试题41：数据流中的中位数/" rel="next" title="【剑指Offer】面试题41：数据流中的中位数">
-                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题41：数据流中的中位数
+              <a href="/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/" rel="next" title="【剑指Offer】面试题43：1~n整数中1出现的次数">
+                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题43：1~n整数中1出现的次数
               </a>
             
           </div>
@@ -446,10 +432,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/" rel="prev" title="【剑指Offer】面试题43：1~n整数中1出现的次数">
-                【剑指Offer】面试题43：1~n整数中1出现的次数 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -592,7 +574,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-1：穷举"><span class="nav-number">1.</span> <span class="nav-text">思路 1：穷举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-2：举例分析数组的规律"><span class="nav-number">2.</span> <span class="nav-text">思路 2：举例分析数组的规律</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-3：动态规划"><span class="nav-number">3.</span> <span class="nav-text">思路 3：动态规划</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-1：穷举"><span class="nav-number">1.</span> <span class="nav-text">思路 1：穷举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思路-2：分析例子找规律"><span class="nav-number">2.</span> <span class="nav-text">思路 2：分析例子找规律</span></a></li></ol></div>
             
 
           </div>

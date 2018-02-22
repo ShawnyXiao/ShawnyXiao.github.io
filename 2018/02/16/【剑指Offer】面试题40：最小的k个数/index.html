@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。 思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路 2">
+<meta name="description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。  思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【剑指Offer】面试题40：最小的k个数">
 <meta property="og:url" content="http://shawnyxiao.github.io/2018/02/16/【剑指Offer】面试题40：最小的k个数/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。 思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路 2">
+<meta property="og:description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。  思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-16T06:29:15.231Z">
+<meta property="og:updated_time" content="2018-02-22T06:41:42.873Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【剑指Offer】面试题40：最小的k个数">
-<meta name="twitter:description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。 思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路 2">
+<meta name="twitter:description" content="题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。  思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路">
 
 
 
@@ -386,7 +386,9 @@
       
 
       
-        <p>题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。</p>
+        <blockquote>
+<p>题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。</p>
+</blockquote>
 <h2 id="思路-1：排序"><a href="#思路-1：排序" class="headerlink" title="思路 1：排序"></a>思路 1：排序</h2><p>最直接的思路是：<strong>将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字</strong>。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。</p>
 <h2 id="思路-2：Partition"><a href="#思路-2：Partition" class="headerlink" title="思路 2：Partition"></a>思路 2：Partition</h2><p>我们一定要将整个数组彻底的排序才能找到最小的 k 个数字吗？不一定，这个算法的思路灵感来源于快速排序。</p>
 <p>思路是：</p>
@@ -518,7 +520,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
