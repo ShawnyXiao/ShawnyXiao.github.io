@@ -3,6 +3,7 @@ title: 【数据挖掘比赛】让AI当法官
 date: 2018-01-17 20:13:07
 categories:
 - 数据挖掘比赛
+top: true
 ---
 
 这是我近期参加的一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：[**让 AI 当法官**](http://www.datafountain.cn/#/competitions/277/intro)。但是由于时间冲突与一些个人原因，我只参与并完成了初赛任务（罚金类别预测），并未完成复赛任务（法律条款预测）。在初赛成绩中，取得 **A 榜第 5**、**B 榜第 7** (**Top 1.68%**) 的成绩（这个成绩实际上只用了 if-idf 特征和 Word2Vec 特征，该项目在初赛结束后做了不少尝试和改进，效果应该会更优于初赛）。
@@ -127,14 +128,14 @@ tf-idf（英语：term frequency–inverse document frequency）是一种用于�
 └─src
 ```
 
-文件目录如上所示。```data``` 目录中包含所有的数据文件，由于数据文件较大，我没有上传；```src``` 目录中包含所有的代码文件。以下是详细介绍：
+文件目录如上所示。`data` 目录中包含所有的数据文件，由于数据文件较大，我没有上传；`src` 目录中包含所有的代码文件。以下是详细介绍：
 
-- ```data/input```：所有的源文件和停用词文件
-- ```data/output/corpus```：数据预处理后的数据文件
-- ```data/output/feature```：生成的各类特征文件
-- ```data/output/model```：训练 Doc2Vec 和 Word2Vec 模型时产生的模型文件
-- ```data/result/sub```：生成的结果文件（可提交至线上）
-- ```data/result/val```：交叉验证产生的结果文件（这里的文件不提交）
+- `data/input`：所有的源文件和停用词文件
+- `data/output/corpus`：数据预处理后的数据文件
+- `data/output/feature`：生成的各类特征文件
+- `data/output/model`：训练 Doc2Vec 和 Word2Vec 模型时产生的模型文件
+- `data/result/sub`：生成的结果文件（可提交至线上）
+- `data/result/val`：交叉验证产生的结果文件（这里的文件不提交）
 
 目录内的文件大致如下：
 
@@ -142,17 +143,17 @@ tf-idf（英语：term frequency–inverse document frequency）是一种用于�
 
 ## 执行顺序
 
-我将交叉验证和全量训练预测分成了两个文件：```ai_judge_cv.ipynb``` 和 ```ai_judge.ipynb```。其次，还有一些冗余的脚本文件，分别是位于 ```src``` 目录下的 python 脚本。这些脚本文件只是 ```ai_judge_cv.ipynb``` 中的冗余代码，只是整理成了 python 脚本。脚本文件的执行顺序如下：
+我将交叉验证和全量训练预测分成了两个文件：`ai_judge_cv.ipynb` 和 `ai_judge.ipynb`。其次，还有一些冗余的脚本文件，分别是位于 `src` 目录下的 python 脚本。这些脚本文件只是 `ai_judge_cv.ipynb` 中的冗余代码，只是整理成了 python 脚本。脚本文件的执行顺序如下：
 
-1. ```pre.py```：分词和去除停用词
-2. ```feat_tfidf_stack.py```：构造 tf-idf stacking 特征
-3. ```feat_amount.py```：构造统计特征
-4. ```train_d2v_model.py```：训练 Doc2Vec 模型
-5. ```feat_dbow_stack.py```：构造 Doc2Vec-DBOW stacking 特征
-6. ```feat_dm_stack.py```：构造 Doc2Vec-DM stacking 特征
-7. ```train_w2v_model.py```：训练 Word2Vec 模型
-8. ```feat_w2v.py```：构造 Word2Vec 特征
-9. ```xgb_ens.py```：使用 XGBoost 结合所有特征进行交叉验证
+1. `pre.py`：分词和去除停用词
+2. `feat_tfidf_stack.py`：构造 tf-idf stacking 特征
+3. `feat_amount.py`：构造统计特征
+4. `train_d2v_model.py`：训练 Doc2Vec 模型
+5. `feat_dbow_stack.py`：构造 Doc2Vec-DBOW stacking 特征
+6. `feat_dm_stack.py`：构造 Doc2Vec-DM stacking 特征
+7. `train_w2v_model.py`：训练 Word2Vec 模型
+8. `feat_w2v.py`：构造 Word2Vec 特征
+9. `xgb_ens.py`：使用 XGBoost 结合所有特征进行交叉验证
 
 **强烈推荐**直接使用那两个 notebook 文件，因为这些冗余脚本有可能在我更新了 notebook 文件后并没有及时更新。
 
