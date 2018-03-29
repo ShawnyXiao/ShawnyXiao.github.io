@@ -10,23 +10,42 @@ categories:
 ## 实现
 
 ```java
+import java.util.ArrayList;
 public class Solution {
-    public int Fibonacci(int n) {
-        // 特殊输入检查
-        if (n <= 0)
+    public int minNumberInRotateArray(int[] array) {
+        // 特殊输入的检查
+        if (array == null || array.length == 0)
             return 0;
-        if (n == 1 || n == 2)
-            return 1;
+        if (array.length == 1)
+            return array[0];
 
-        // 动态规划
-        int a = 1, b = 1;
-        int tmp;
-        for (int i = 3; i <= n; i++) {
-            tmp = a + b;
-            a = b;
-            b = tmp;
+        // 如果数组的第一个值小于最后一个值，就返回第一个值
+        int lo = 0, hi = array.length - 1;
+        if (array[lo] < array[hi]) {
+            return array[0];
         }
-        return b;
+
+        // 如果数组的第一个值大于最后一个值，就二分查找
+        if (array[lo] > array[hi]) {
+            int mid;
+            while(lo <= hi) {
+                mid = lo + (hi - lo) / 2;
+                if (array[mid] > array[mid + 1])
+                    return array[mid + 1];
+                if (array[mid] <= array[hi])
+                    hi = mid;
+                else
+                    lo = mid;
+            }
+        }
+
+        // 如果数组的第一个值等于最后一个值，穷举
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < array.length; i++) {
+            if (min > array[i])
+                min = array[i];
+        }
+        return min;
     }
 }
 ```
