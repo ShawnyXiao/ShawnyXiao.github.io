@@ -28,7 +28,7 @@ public class Solution {
     private TreeNode curNode;
 
     public TreeNode Convert(TreeNode pRootOfTree) {
-    	// 退出边界
+    	// 特殊输入的检查
         if (pRootOfTree == null)
             return null;
 
@@ -37,6 +37,7 @@ public class Solution {
     }
 
     private void inorder(TreeNode n) {
+        // 退出边界
         if (n == null)
             return;
 
