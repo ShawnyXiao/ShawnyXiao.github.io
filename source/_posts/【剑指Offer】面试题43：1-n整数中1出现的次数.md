@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题43：1~n整数中1出现的次数
-date: 2018-02-20 14:30:47
+date: 2018-04-15 19:30:47
 categories:
 - 剑指Offer
 ---
@@ -29,3 +29,36 @@ categories:
 8. 因此，1~21345 中 1 出现的次数为 $18000+1000+345+260+14+1=19620$
 
 根据以上的分析，我们将这个算法进行总结：**计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数，因此我们可以使用递归的方法，将 n 从十进制表示的最高位到最低位一步一步计算 1 出现的次数**。这个算法的递归深度是 $log\,n$，其他的操作都是常数级别的，因此总的时间复杂度为 $O(log\,n)$。
+
+## 实现
+
+```java
+public class Solution {
+    public int NumberOf1Between1AndN_Solution(int n) {
+        // 特殊输入的检查
+        if (n < 1)
+            return 0;
+
+        // 穷举法
+        int count = 0;
+        for (int i = 1; i <= n; i++) {
+            count += calNumOf1(i);
+        }
+        return count;
+    }
+
+    private int calNumOf1(int k) {
+        int count = 0;
+        int a = k;
+        while (true) {
+            if (a == 0)
+                break;
+            int lastDigit = a % 10;
+            if (lastDigit == 1)
+                count++;
+            a /= 10;
+        }
+        return count;
+    }
+}
+```

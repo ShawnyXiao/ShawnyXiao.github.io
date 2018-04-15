@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题39：数组中出现次数超过一半的数字
-date: 2018-02-15 16:55:08
+date: 2018-04-15 10:55:08
 categories:
 - 剑指Offer
 ---
@@ -24,10 +24,51 @@ categories:
 
 这样做不需要对整个数组排序，只需要局部的排序就能够达到目的，算法的时间复杂度是 O(n)。但是缺点在于依然需要修改输入的数组。
 
-## 思路 3：临时变量
+## 思路 3：阵地攻守
 
-输入的数组中有一个数字超过了数组长度的一半，也就是说，这个数字的个数比其他所有数字的个数都要多。基于这个特点，我们便产生了一个不需要修改数组的思路。
+输入的数组中有一个数字超过了数组长度的一半，也就是说，这个数字的个数比其他所有数字的个数都要多。基于这个特点，我们便产生了一个不需要修改数组的思路：阵地攻守。简而言之，也就是，遇到敌人同归于尽，遇到同伴数量增加。
 
 思路是：**我们使用一个临时变量存储数字，另一个临时变量存储次数。从头到尾的遍历数组，如果当前数字与数字变量（也就是之前保存的数字）中的数字相同，次数变量就加 1，否则就减 1；如果次数为 0，那么我们需要将数字变量赋值为当前数字，并把次数变量赋值为 1**。由于我们要寻找的数字比其他数字的个数都要多，因此最后在数字变量中存储并且次数变量大于 0 的数字就是我们要寻找的数字。
 
 这个算法只需要从头到尾的遍历一遍数组，因此算法的时间复杂度是 O(n)，并且不需要修改输入的数组。
+
+## 实现
+
+```java
+public class Solution {
+    public int MoreThanHalfNum_Solution(int[] array) {
+        // 特殊输入的检查
+        if (array == null || array.length == 0)
+            return 0;
+        if (array.length == 1)
+            return array[0];
+
+        int count = 1;
+        int num = array[0];
+
+        // 阵地攻守的思想：遇到敌人同归于尽，遇到同伴数量增加
+        for (int i = 1; i < array.length; i++) {
+            if (count == 0) {
+                num = array[i];
+                count++;
+            } else {
+                if (num == array[i])
+                    count++;
+                else
+                    count--;
+            }
+        }
+
+        // 检查数组确实有一个数字出现的次数超过数组长度的一半
+        return checkMoreThanHalf(array, num) ? num : 0;
+    }
+
+    private boolean checkMoreThanHalf(int[] a, int n) {
+        int count = 0;
+        for (int i = 0; i < a.length; i++)
+            if (n == a[i])
+                count++;
+        return count > (a.length / 2);
+    }
+}
+```

@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题42：连续子数组的最大和
-date: 2018-02-18 23:35:09
+date: 2018-04-15 14:35:09
 categories:
 - 剑指Offer
 ---
@@ -54,3 +54,28 @@ $$
 这个公式表示：**如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”**。
 
 实际上，你仔细想想，思路 3 和思路 2 在本质上是相同的，只是表达方式不一样。这个思路的时间复杂度同样是 O(n)。
+
+## 实现
+
+```java
+public class Solution {
+    public int FindGreatestSumOfSubArray(int[] array) {
+        // 特殊输入的检查
+        if (array == null || array.length == 0)
+            return 0;
+        if (array.length == 1)
+            return array[0];
+
+        // 动态规划
+        int max = array[0];
+        int lastSum = array[0];
+        for (int i = 1; i < array.length; i++) {
+            lastSum = Math.max(lastSum + array[i], array[i]);
+            if (max < lastSum)
+                max = lastSum;
+        }
+
+        return max;
+    }
+}
+```

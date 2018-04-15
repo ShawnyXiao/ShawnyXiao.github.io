@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题40：最小的k个数
-date: 2018-02-16 13:48:35
+date: 2018-04-15 12:48:35
 categories:
 - 剑指Offer
 ---
@@ -32,3 +32,38 @@ categories:
 - **如果数据容器没有装满，就将数字装入数据容器中；如果数据容器装满了，就选出数据容器中最大的数字，拿当前数字与这个最大的数字进行比较，如果当前数字大则抛弃它，如果当前数字小则替换掉最大的数字**
 
 当数据容器选择堆或者红黑树时，对数据容器中的元素进行增删查只需要 O(logk) 的时间复杂度，然后我们需要遍历整个数组，因此这个算法的时间复杂度是 O(nlogk)。这个算法不需要修改输入数组，而且可以使用流的方式处理海量数据。
+
+## 实现
+
+```java
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+
+public class Solution {
+    public ArrayList<Integer> GetLeastNumbers_Solution(int[] input, int k) {
+        ArrayList<Integer> res = new ArrayList<>();
+
+        // 特殊输入的检查
+        if (input == null || input.length == 0 || k == 0)
+            return res;
+        if (k > input.length)
+            return res;
+
+        // 最大堆的思路
+        PriorityQueue<Integer> q = new PriorityQueue<>(k, (o1, o2) -> o2 - o1);
+        for (int i = 0; i < k; i++)
+            q.offer(input[i]);
+        for (int i = k; i < input.length; i++) {
+            if (input[i] > q.peek())
+                continue;
+            q.poll();
+            q.offer(input[i]);
+        }
+
+        for (int a: q)
+            res.add(a);
+
+        return res;
+    }
+}
+```
