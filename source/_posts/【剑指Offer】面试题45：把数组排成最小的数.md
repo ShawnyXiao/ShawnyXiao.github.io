@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题45：把数组排成最小的数
-date: 2018-02-27 16:20:00
+date: 2018-04-25 10:20:00
 categories:
 - 剑指Offer
 ---
@@ -26,3 +26,37 @@ categories:
 由于排序操作需要 $O(n\,log\,n)$ 的时间复杂度，其他的操作均小于它，因此这个算法的时间复杂度是 $O(n\,log\,n)$。
 
 这个算法涉及到自己定义的比较规则，往往需要证明这个规则的有效性与这个算法的有效性。换句话说，也就是需要证明规则是自反的、对称的和传递的；该算法确实能够找到最小的数字。这个部分比较长，就省略拉。
+
+## 实现
+
+```java
+import java.util.*;
+
+public class Solution {
+    public String PrintMinNumber(int[] numbers) {
+        // 特殊输入的检查
+        if (numbers == null || numbers.length == 0)
+            return "";
+
+        // 构建列表
+        List<Integer> l = new ArrayList<>();
+        for (int n: numbers)
+            l.add(n);
+
+        // 自定义排序
+        l.sort(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return ("" + o1 + o2).compareTo("" + o2 + o1);
+            }
+        });
+
+        // 按排序结果输出
+        StringBuilder res = new StringBuilder();
+        for (int n: l)
+            res.append(n);
+
+        return res.toString();
+    }
+}
+```

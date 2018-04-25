@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题49：丑数
-date: 2018-02-28 16:36:46
+date: 2018-04-25 12:36:46
 categories:
 - 剑指Offer
 ---
@@ -24,3 +24,37 @@ categories:
 3. 通过乘 5 所生成的丑数有：1\*5、2\*5、3\*5、4\*5、5\*5、6\*5、8\*5、9\*5、10\*5、12\*5、……
 
 但是我们需要找到第 1500 个丑数，也就是说丑数需要按顺序排放。**使用一个数组存放丑数，然后可以利用 3 个游动指针 $T_2$、$T_3$ 和 $T_5$分别来记录数组中 2、3 和 5 的当前的最小丑数。每次比较 $T_2\*2$、$T_3\*3$ 和 $T_5\*5$ 的大小，将最小的作为新的丑数放入数组中，并使相应的游动指针后移一位。**
+
+## 实现
+
+```java
+public class Solution {
+    public int GetUglyNumber_Solution(int index) {
+        // 特殊输入的检查
+        if (index < 1)
+            return 0;
+        if (index == 1)
+            return 1;
+
+        // 指针法
+        int[] uglyNums = new int[index];
+        uglyNums[0] = 1;
+        int pos2 = 0, pos3 = 0, pos5 = 0;
+        for (int i = 1; i < index; i++) {
+            int n2 = uglyNums[pos2] * 2;
+            int n3 = uglyNums[pos3] * 3;
+            int n5 = uglyNums[pos5] * 5;
+            int newUglyNum = Math.min(n2, Math.min(n3, n5));
+            uglyNums[i] = newUglyNum;
+            if (n2 == newUglyNum)
+                pos2++;
+            if (n3 == newUglyNum)
+                pos3++;
+            if (n5 == newUglyNum)
+                pos5++;
+        }
+
+        return uglyNums[index - 1];
+    }
+}
+```
