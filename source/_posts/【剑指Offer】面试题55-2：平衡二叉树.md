@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题55-2：平衡二叉树
-date: 2018-03-02 11:03:38
+date: 2018-04-27 10:03:38
 categories:
 - 剑指Offer
 ---
@@ -16,3 +16,33 @@ categories:
 ## 思路 2：后序遍历
 
 为了不重复遍历节点，我们可以采用**后序遍历**的方式。在计算该节点的深度之前，我们已经计算出了左右子树的深度，并且可以判断该子树是否平衡。
+
+## 实现
+
+```java
+public class Solution {
+    public boolean IsBalanced_Solution(TreeNode root) {
+        // 特殊输入的检查
+        if (root == null)
+            return true;
+
+        return calDepth(root) != -1;
+    }
+    private int calDepth(TreeNode n) {
+        // 退出边界
+        if (n == null)
+            return 0;
+
+        // 后续遍历，自底向上
+        int leftDepth = calDepth(n.left);
+        if (leftDepth == -1)
+            return -1;
+
+        int rightDepth = calDepth(n.right);
+        if (rightDepth == -1)
+            return -1;
+
+        return Math.abs(leftDepth - rightDepth) <= 1 ? Math.max(leftDepth, rightDepth) + 1 : -1;
+    }
+}
+```
