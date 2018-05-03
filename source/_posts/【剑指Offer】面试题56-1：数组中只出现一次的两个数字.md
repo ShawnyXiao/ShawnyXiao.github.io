@@ -1,6 +1,6 @@
 ---
 title: 【剑指Offer】面试题56-1：数组中只出现一次的两个数字
-date: 2018-03-05 15:18:38
+date: 2018-05-03 10:18:38
 categories:
 - 剑指Offer
 ---
@@ -20,3 +20,40 @@ categories:
 总结一下思路：**首先把数组中的所有数字进行异或，得到两个不相同数字的异或结果；然后找到这个结果的二进制表示中为 1 的某一位；接着把整个数组按该位为 0 和 1 划分成两类；最后对每一类分别进行异或，便可以得到两个不同的数字**。
 
 这个算法的时间复杂度是 O(n)，空间复杂度是 O(1)。
+
+## 实现
+
+```java
+// num1, num2 分别为长度为 1 的数组。传出参数
+// 将 num1[0], num2[0] 设置为返回结果
+public class Solution {
+    public void FindNumsAppearOnce(int[] array,int[] num1, int[] num2) {
+        // 特殊输入的检查
+        if (array == null || array.length == 0)
+            return;
+        if (num1 == null || num1.length == 0 || num2 == null || num2.length == 0)
+            return;
+
+        // 异或
+        int res = 0;
+        for (int a: array)
+            res ^= a;
+
+        // 区分位
+        int bit = 1;
+        while (true) {
+            if ((res & bit) > 0)
+                break;
+            bit <<= 1;
+        }
+
+        // 划分开，异或
+        for (int a: array) {
+            if ((a & bit) == 0)
+                num1[0] ^= a;
+            else
+                num2[0] ^= a;
+        }
+    }
+}
+```
