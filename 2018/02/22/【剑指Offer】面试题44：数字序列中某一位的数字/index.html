@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
+<meta name="description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【剑指Offer】面试题44：数字序列中某一位的数字">
 <meta property="og:url" content="http://shawnyxiao.github.io/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
+<meta property="og:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-22T07:38:25.517Z">
+<meta property="og:updated_time" content="2018-07-03T04:05:50.173Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【剑指Offer】面试题44：数字序列中某一位的数字">
-<meta name="twitter:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。  思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对">
+<meta name="twitter:description" content="题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。">
 
 
 
@@ -389,6 +389,7 @@
         <blockquote>
 <p>题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。</p>
 </blockquote>
+<a id="more"></a>
 <h2 id="思路-1：穷举"><a href="#思路-1：穷举" class="headerlink" title="思路 1：穷举"></a>思路 1：穷举</h2><p>最直接的思路是：<strong>从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对应的数字，然后找出其中所对应的那一位数字</strong>。</p>
 <p>这个算法是极为简单的思路，时间复杂度可能达不到面试官的要求，我们还需要思考更快的算法。</p>
 <h2 id="思路-2：分析例子找规律"><a href="#思路-2：分析例子找规律" class="headerlink" title="思路 2：分析例子找规律"></a>思路 2：分析例子找规律</h2><p>我们一定要从 0 开始一个一个枚举数字吗？不一定。在到我们想要的数字之前，很多数字都是可以忽略的。基于这个想法，我们来分析具体的例子，看看如何忽略大部分不需要枚举的数字。为了说清楚这个算法，我们取 n=1001。因此，我们需要找出第 1001 位对应的数字。</p>
@@ -423,8 +424,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/20/【剑指Offer】面试题43：1-n整数中1出现的次数/" rel="next" title="【剑指Offer】面试题43：1~n整数中1出现的次数">
-                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题43：1~n整数中1出现的次数
+              <a href="/2018/02/17/【剑指Offer】面试题41：数据流中的中位数/" rel="next" title="【剑指Offer】面试题41：数据流中的中位数">
+                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题41：数据流中的中位数
               </a>
             
           </div>
@@ -432,6 +433,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/27/【剑指Offer】面试题46：把数字翻译成字符串/" rel="prev" title="【剑指Offer】面试题46：把数字翻译成字符串">
+                【剑指Offer】面试题46：把数字翻译成字符串 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -512,7 +517,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -523,7 +528,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。 这个比赛 12 月中旬就结束了，硬是被我拖到现在才来总结，我这拖延症真的是……现在回忆起这个比赛，比赛时的那种郁闷感依然记忆犹新。我在复赛的第 5 天便达到了分数 6924，但之后一直无法提分，这种烦躁感当时给我带来了挺大的">
+<meta name="description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【数据挖掘比赛】企业经营退出风险预测">
 <meta property="og:url" content="http://shawnyxiao.github.io/2018/02/07/【数据挖掘比赛】企业经营退出风险预测/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。 这个比赛 12 月中旬就结束了，硬是被我拖到现在才来总结，我这拖延症真的是……现在回忆起这个比赛，比赛时的那种郁闷感依然记忆犹新。我在复赛的第 5 天便达到了分数 6924，但之后一直无法提分，这种烦躁感当时给我带来了挺大的">
+<meta property="og:description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-07T11:50:31.000Z">
+<meta property="og:updated_time" content="2018-07-03T04:05:50.189Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【数据挖掘比赛】企业经营退出风险预测">
-<meta name="twitter:description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。 这个比赛 12 月中旬就结束了，硬是被我拖到现在才来总结，我这拖延症真的是……现在回忆起这个比赛，比赛时的那种郁闷感依然记忆犹新。我在复赛的第 5 天便达到了分数 6924，但之后一直无法提分，这种烦躁感当时给我带来了挺大的">
+<meta name="twitter:description" content="这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：企业经营退出风险预测。最终取得复赛 A 榜第 3，B 榜第 9 (Top 1.58%) 的成绩。">
 
 
 
@@ -387,6 +387,7 @@
 
       
         <p>这是我的第一个数据挖掘比赛，CCF 大数据与计算智能大赛（BDCI）中的一题：<a href="http://www.datafountain.cn/#/competitions/271/intro" target="_blank" rel="noopener"><strong>企业经营退出风险预测</strong></a>。最终取得复赛 <strong>A 榜第 3</strong>，<strong>B 榜第 9</strong> (<strong>Top 1.58%</strong>) 的成绩。</p>
+<a id="more"></a>
 <p>这个比赛 12 月中旬就结束了，硬是被我拖到现在才来总结，我这拖延症真的是……现在回忆起这个比赛，比赛时的那种郁闷感依然记忆犹新。我在复赛的第 5 天便达到了分数 6924，但之后一直无法提分，这种烦躁感当时给我带来了挺大的困扰（当然最后还是提升到了分数 6930）。等比赛结束之后，我回过头来看，其实当时我参赛的心态是不端正的，功利心太强，这样带来的问题就是比赛心态的爆炸，自己的眼界会被约束，提分方式的想象力也会被限制。最好的心态应该是抱着学习的心态参赛，只要能够学到一点点新的东西，就会感到惊喜。</p>
 <p>另外一个想说的点是，我们团队在复赛 A 榜中排名第 3，但是切换 B 榜之后，便跌到第 9 了，这个现象直接导致我们团队没有进入决赛，因此我会在后文中谈一谈为什么会有这个现象。</p>
 <p>我的另一位队友 JinjinLin 也开源了解决方案，详情请见 <a href="https://github.com/linjinjin123/2017-CCF-BDCI-Enterprise" target="_blank" rel="noopener">JinjinLin 的解决方案</a></p>
@@ -421,7 +422,7 @@
 <h2 id="特征"><a href="#特征" class="headerlink" title="特征"></a>特征</h2><p>我将特征分为 5 个部分，分别是<strong>基础特征</strong>、<strong>偏离值特征</strong>、<strong>交叉特征</strong>和<strong>想象力特征</strong>。</p>
 <h3 id="1-基础特征"><a href="#1-基础特征" class="headerlink" title="1. 基础特征"></a>1. 基础特征</h3><p>基础特征是比赛中最容易想到的特征，其中包括：</p>
 <ol>
-<li><strong>保留字段</strong>。数据集中某些关键字段直接保留成特征，例如：uid、ZCZB、RGYEAR、INUM、ENUM 等</li>
+<li><strong>保留字段</strong>。数据集中某些关键字段直接保留成特征，例如：<code>uid</code>、<code>ZCZB</code>、<code>RGYEAR</code>、<code>INUM</code>、<code>ENUM</code> 等</li>
 <li><strong>统计特征</strong>。以某几个字段作为分组字段，然后进行统计操作，统计操作包括：计数、求和、最小值、最大值、最小最大差值、均值、标准差、比例等</li>
 <li><strong>特定集合中的统计特征</strong>。先进行过滤，然后以某几个字段作为分组字段，然后进行统计操作。例如：统计近 1、2、5 年内的修改数额的最小值、最大值和均值等</li>
 </ol>
@@ -505,8 +506,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/02/15/【剑指Offer】面试题39：数组中出现次数超过一半的数字/" rel="prev" title="【剑指Offer】面试题39：数组中出现次数超过一半的数字">
-                【剑指Offer】面试题39：数组中出现次数超过一半的数字 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/02/17/【剑指Offer】面试题41：数据流中的中位数/" rel="prev" title="【剑指Offer】面试题41：数据流中的中位数">
+                【剑指Offer】面试题41：数据流中的中位数 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -588,7 +589,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -599,7 +600,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

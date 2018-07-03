@@ -1,6 +1,470 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[【数据挖掘比赛】TalkingData AdTracking Fraud Detection Challenge]]></title>
+    <url>%2F2018%2F06%2F01%2F%E3%80%90%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98%E6%AF%94%E8%B5%9B%E3%80%91TalkingData%20AdTracking%20Fraud%20Detection%20Challenge%2F</url>
+    <content type="text"><![CDATA[TalkingData AdTracking Fraud Detection Challenge 是 TalkingData 在 Kaggle 上举办的一个数据挖掘比赛。最终取得的成绩是 Solo 银牌。 这个比赛历程比较有趣，应该可以说是我时间花费最少的比赛吧。最开始关注到这个比赛是 4 月 25 日，那时我便随便下载了个别人的结果提交，当时排名 300+，于是我就置之不理了。之后再开始做的时候已经是 5 月 2 日了，排名也掉到了 1100+。从 5 月 2 日至 5 月 7 日，我大概只用了 6 天（期间还有在忙其他的事情，因此也不是全脱产比赛），幸运的拿到一枚银牌。下图是我比赛期间的排名变化。 因为时间较短，我的结果都是来自于单模型 LightGBM，并没有尝试其他模型。因此我会分享比赛中我认为比较重要的两个部分：亿级数据的处理和特征构建。 项目源码：https://github.com/ShawnyXiao/2018-Kaggle-AdTrackingFraud 亿级数据的处理该比赛提供的数据大约 10 G，有超过 1 亿个样本。如何利用有限的内存来处理这 10 G 的数据，对于这个比赛是十分关键的。比赛中，我大致使用过以下几个操作： 使用 Pandas 读取数据时，如果没有指定每列的数据类型，它会以最保守的方式来读取：使用 uint64 读取非负整型，使用 float64 读取浮点数和带空值的整型。如果使用这种最保守的方式读取数据，带来的内存消耗是极大的。因此，使用适当的数据类型 uint8、uint16、uint34、float32 等来读取数据，能够很好的节约我们的内存资源。 很多变量我们在之后不会再使用了，但是如果一直被保存在内存中，也会耗费我们极为珍贵的内存资源。因此，当某个变量 a（尤其占较大内存的变量）不再使用时，我们应该及时将它从内存中删除：del a。 我们经常会使用某个变量引用不同的对象，这时会产生一些无法再继续引用的对象，理论上 Python 会自动帮我们做垃圾回收，但是需要触发某些条件。因此，我们可以经常性的调用函数：gc.collect()，来触发垃圾回收操作。 对于类别特征，我们一般会进行 One-hot 转换。如果不转换，模型会把类别特征当作有序的连续值来处理；如果转化了，特征维度会变得极大，内存耗费增大的同时模型的训练速度也会减慢。LightGBM 对于类别特征做了优化处理，只需要在准备数据时指定类别特征即可，这样不需要再对类别特征进行 One-hot 转换，因此不会增大内存耗费也不会减慢模型的训练速度。 特征构建特征构建部分对于提分尤为关键。特征构建可以被分解成两个问题：基于什么数据集去构建特征和构建哪些特征。 1. 基于什么数据集去构建特征？最开始的时候，对于比赛方提供 test_supplement 这个数据集的意图不是特别清楚，因此没有使用该数据。使用 train+test 这个数据集来构建特征，分数不高也不低，公榜 0.9800，在铜牌的位置；后来尝试使用了 train+test_supplement 这个数据集来构建特征，分数直接上升一个千，公榜 0.9813，在银牌的位置！因此，从这个现象我们可以察觉，从 train+test 提取的特征训练的模型的偏差（bias）是比 train+test_supplement 要大不少的。 2. 构建哪些特征？ 基于 [ip, app, channel, device, os] 分组后，计算后一个的时间差 基于 [ip, os, device] 分组后，计算后一个的时间差 基于 [ip, os, device, app] 分组后，计算后一个的时间差 基于 [ip, channel] 分组后，计算前一个的时间差 基于 [ip, os] 分组后，计算前一个的时间差 基于 [ip] 分组后，统计 channel 的 unique 数量 基于 [ip, device, os] 分组后，统计 app 的 unique 数量 基于 [ip, day] 分组后，统计 hour 的 unique 数量 基于 [ip] 分组后，统计 app 的 unique 数量 基于 [ip, app] 分组后，统计 os 的 unique 数量 基于 [ip] 分组后，统计 device 的 unique 数量 基于 [app] 分组后，统计 channel 的 unique 数量 基于 [ip] 分组后，统计 os 的 cumcount 计数 基于 [ip, device, os] 分组后，统计 app 的 cumcount 计数 基于 [ip, day, hour] 分组后，统计数量 基于 [ip, app] 分组后，统计数量 基于 [ip, app, os] 分组后，统计数量 基于 [ip, app, os] 分组后，统计 day 的方差 基于不同分组的转化率特征（这个最后没时间做了，据说可以提升 5 个万分点） 嘿！如果您有任何的想法，例如：发现某处有 bug、觉得我对某个方法的讲解不正确或者不透彻、有更加有创意的见解，欢迎随时发 issue 或者 pull request 或者直接与我讨论！另外您若能 star 或者 fork 这个项目以激励刚刚踏入数据挖掘的我，我会感激不尽~]]></content>
+      <categories>
+        <category>数据挖掘比赛</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题56-1：数组中只出现一次的两个数字]]></title>
+    <url>%2F2018%2F05%2F03%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9856-1%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[题目：一个整型数组里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是 O(n)，空间复杂度是 O(1)。 思路 1：排序后遍历最直观的思路是：对数组先排序，然后从头到尾遍历，找出只出现一次的数字。但是这种算法的时间复杂度是 $O(n\,log\,n)$。我们需要思考更快的算法。 思路 2：异或由于数组中绝大多数的数字都是出现两次，我们想要消除掉这些出现两次的数字，很自然的可以想到使用异或操作：相同为 0，相异为 1。但是把数组的所有数字都异或之后，我们最终可以得到的结果是那两个不相同的数字异或的结果。如何将这两个数划分开来呢？我们知道，两个不相同的数字异或的结果肯定不是 0，因此它的二进制表示必然存在某一位等于 1，在这一位上那两个数字中有一个是 0 有一个是 1。因此我们可以将整个数组分为两个类别，一类是这一位是 1 的，另一类是这一位是 0 的，这样就把两个数字划分开了。这时我们再分别对两个类别取异或操作，便能得到两个不同的数字。 总结一下思路：首先把数组中的所有数字进行异或，得到两个不相同数字的异或结果；然后找到这个结果的二进制表示中为 1 的某一位；接着把整个数组按该位为 0 和 1 划分成两类；最后对每一类分别进行异或，便可以得到两个不同的数字。 这个算法的时间复杂度是 O(n)，空间复杂度是 O(1)。 实现1234567891011121314151617181920212223242526272829303132// num1, num2 分别为长度为 1 的数组。传出参数// 将 num1[0], num2[0] 设置为返回结果public class Solution &#123; public void FindNumsAppearOnce(int[] array,int[] num1, int[] num2) &#123; // 特殊输入的检查 if (array == null || array.length == 0) return; if (num1 == null || num1.length == 0 || num2 == null || num2.length == 0) return; // 异或 int res = 0; for (int a: array) res ^= a; // 区分位 int bit = 1; while (true) &#123; if ((res &amp; bit) &gt; 0) break; bit &lt;&lt;= 1; &#125; // 划分开，异或 for (int a: array) &#123; if ((a &amp; bit) == 0) num1[0] ^= a; else num2[0] ^= a; &#125; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题55-2：平衡二叉树]]></title>
+    <url>%2F2018%2F04%2F27%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9855-2%EF%BC%9A%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91%2F</url>
+    <content type="text"><![CDATA[题目：输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左、右子树的深度相差不超过 1，那么它就是一棵平衡二叉树。 思路 1：遍历节点的同时计算左右子树的深度根据上一题的思路，我们可以在遍历二叉树的节点的同时计算左右子树的深度，如果所有的左右子树都满足深度相差不超过 1，那么它是平衡的；否则它是不平衡的。这个算法的缺陷在于，有很多重复遍历的节点，这样会造成时间效率的损失。 思路 2：后序遍历为了不重复遍历节点，我们可以采用后序遍历的方式。在计算该节点的深度之前，我们已经计算出了左右子树的深度，并且可以判断该子树是否平衡。 实现12345678910111213141516171819202122232425public class Solution &#123; public boolean IsBalanced_Solution(TreeNode root) &#123; // 特殊输入的检查 if (root == null) return true; return calDepth(root) != -1; &#125; private int calDepth(TreeNode n) &#123; // 退出边界 if (n == null) return 0; // 后续遍历，自底向上 int leftDepth = calDepth(n.left); if (leftDepth == -1) return -1; int rightDepth = calDepth(n.right); if (rightDepth == -1) return -1; return Math.abs(leftDepth - rightDepth) &lt;= 1 ? Math.max(leftDepth, rightDepth) + 1 : -1; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题55-1：二叉树的深度]]></title>
+    <url>%2F2018%2F04%2F26%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9855-1%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%B7%B1%E5%BA%A6%2F</url>
+    <content type="text"><![CDATA[题目：输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点一次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。 思路：左右子树的最大深度加一我们递归来求解二叉树的深度，思路如下：如果一棵树只有一个节点，那么它的深度为 1；如果一棵树不止一个节点，那么它的深度等于左、右子树中的深度的最大值加一。 实现12345678910111213141516171819/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public int TreeDepth(TreeNode root) &#123; // 退出边界 if (root == null) return 0; return Math.max(TreeDepth(root.left), TreeDepth(root.right)) + 1; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题53-1：数字在排序数组中出现的次数]]></title>
+    <url>%2F2018%2F04%2F26%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9853-1%EF%BC%9A%E6%95%B0%E5%AD%97%E5%9C%A8%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：统计一个数字在排序数组中出现的次数。例如，输入排序数组 {1, 2, 3, 3, 3, 3, 3, 4, 5} 和数字 3，由于 3 在这个数组中出现了 4 次，因此输出 4。 思路 1：遍历最直观的思路是：从左到右遍历整个数组，对需要统计的数字计数。这样的算法的时间复杂度是 O(n)。我们应该在思考一下。 思路 2：二分查找对于在排序数组中查找数字，我们第一时间应该想到二分查找。假设我们要找的数字是 k，这个算法的思路是：找到第一个和最后一个等于 k 的数字。 找第一个等于 k 的数字：使用二分查找算法找到数组中位于中间的数字，拿该数字与 k 比较，如果 k 大于该数字，说明 k 在右边的部分，对右边继续使用二分查找算法。如果 k 小于该数字，说明 k 在左边的部分，对左边继续使用二分查找算法。如果 k 等于该数字，比较一下该数字前面的数字是不是等于 k，如果不等于 k，说明该数字就是第一个等于 k 的数字；如果前面的数字等于 k，说明第一个数字在左边的部分，继续对左边使用二分查找算法。找最后一个等于 k 的数字是同样的道理。 找第一个和最后一个等于 k 的数字的操作所需要的时间复杂度是 $O(log\,n)$，因此整个算法的时间复杂度也是 $O(log\,n)$。 实现123456789101112131415161718192021222324252627282930313233343536373839404142434445public class Solution &#123; public int GetNumberOfK(int[] array, int k) &#123; // 特殊输入的检查 if (array == null || array.length == 0) return 0; if (k &lt; array[0] || k &gt; array[array.length - 1]) return 0; // 二分查找：第一个和最后一个的索引 int firstInd = binarySearchFirst(array, k); int lastInd = binarySearchLast(array, k); return firstInd == -1 ? 0 : lastInd - firstInd + 1; &#125; private int binarySearchFirst(int[] a, int k) &#123; int lo = 0; int hi = a.length - 1; while (lo &lt;= hi) &#123; int mid = lo + (hi - lo) / 2; if (a[mid] == k &amp;&amp; (mid - 1 &lt; lo || a[mid - 1] &lt; k)) return mid; else if (a[mid] &lt; k) lo = mid + 1; else hi = mid - 1; &#125; return -1; &#125; private int binarySearchLast(int[] a, int k) &#123; int lo = 0; int hi = a.length - 1; while (lo &lt;= hi) &#123; int mid = lo + (hi - lo) / 2; if (a[mid] == k &amp;&amp; (mid + 1 &gt; hi || a[mid + 1] &gt; k)) return mid; else if (a[mid] &gt; k) hi = mid - 1; else lo = mid + 1; &#125; return -1; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题52：两个链表的第一个公共节点]]></title>
+    <url>%2F2018%2F04%2F26%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9852%EF%BC%9A%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9%2F</url>
+    <content type="text"><![CDATA[题目：输入两个单向链表，找出它们的第一个公共节点。 思路 1：穷举最直接的思路是：对其中一个链表从头到尾遍历每个节点，在遍历一个节点时，对另一个链表从头到尾的遍历，搜索相同的节点，第一个相同的节点就是我们要找的。这样的做法，如果两个链表的长度分别是 n 和 m，那么时间复杂度是 O(nm)。我们需要思考更快的方法。 思路 2：栈由于是单向链表，因此第一个公共节点之后的节点全是公共的，也就是说两个链表只有前面有一小段不一样，后面都是公共部分。我们需要找到后面公共部分的第一个节点，栈是一个极好的选择。这个方法的思路是：使用两个栈，分别将两条链表的节点依次压入不同的栈中，由于两条节点后面的节点是相同的，将两个栈同时弹出节点，直到弹出不同的节点，这样便可以找到第一个公共节点了。这个算法的时间复杂度是 O(n+m)，空间复杂度是 O(n+m)。 思路 3：截掉长链表长的那一部分上一个思路需要两个栈，我们能不能不要额外的空间呢？答案是可以的。这个算法的思路是：分别遍历两条链表，得到两条链表的长度为 n 和 m（假设 n &gt; m），于是可以知道长链表比短链表多出 n-m 个节点，可以先扫描长链表的 n-m 个节点，这时两条链表需要扫描的部分的长度便相同了，同时扫描两条链表并比较节点是否相同，直到找到第一个相同的节点。这个算法的时间复杂度是 O(n+m)，空间复杂度是 O(1)。 实现12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849/*public class ListNode &#123; int val; ListNode next = null; ListNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public ListNode FindFirstCommonNode(ListNode pHead1, ListNode pHead2) &#123; // 特殊输入的检查 if (pHead1 == null || pHead2 == null) return null; // 计算两个链表的长度 int l1 = 0, l2 = 0; ListNode h = pHead1; while (h != null) &#123; l1++; h = h.next; &#125; h = pHead2; while (h != null) &#123; l2++; h = h.next; &#125; // 长链表先遍历长的那一部分 ListNode n1 = pHead1; ListNode n2 = pHead2; if (l1 &gt; l2) &#123; for (int i = 0; i &lt; l1 - l2; i++) n1 = n1.next; &#125; else &#123; for (int i = 0; i &lt; l2 - l1; i++) n2 = n2.next; &#125; // 两个链表齐头并进 while (n1 != null) &#123; if (n1.val == n2.val) return n1; n1 = n1.next; n2 = n2.next; &#125; return null; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题50-1：字符串中第一个只出现一次的字符]]></title>
+    <url>%2F2018%2F04%2F26%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9850-1%EF%BC%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%AD%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6%2F</url>
+    <content type="text"><![CDATA[题目：在字符串中找出第一个只出现一次的字符。如输入“abaccdeff”，则输出‘b’。 思路 1：从左到右判断每个字符其后是否还有出现过最直接的思路是：对于字符串，从左到右扫描每个字符，判断该字符之后的字符是否还出现过，输入第一个之后没有出现过的字符。这种思路简单而直观，但是对 n 个字符扫描，并判断其后的 O(n) 个字符是否重复，这需要 $O(n^2)$ 的时间复杂度，我们需要思考更快的算法。 思路 2：哈希表我们可以使用某种数据容器记录每个字符出现的次数，把字符映射成数字的数据容器，哈希表正是这种数据容器。这个思路是：第一次扫描字符串记录每个字符出现的次数，第二次扫描字符串找出第一个次数为 1 的字符。只用扫描两次字符串就能达到目的，该算法的时间复杂度是 $O(n\,log\,n)$。 实现123456789101112131415161718192021222324252627import java.util.*;public class Solution &#123; public int FirstNotRepeatingChar(String str) &#123; // 特殊输入的检查 if (str == null || str.length() &lt;= 0) return -1; if (str.length() == 1) return 0; // 哈希表存次数 Map&lt;Character, Integer&gt; m = new HashMap&lt;&gt;(); for (int i = 0; i &lt; str.length(); i++) &#123; if (m.containsKey(str.charAt(i))) &#123; m.put(str.charAt(i), m.get(str.charAt(i)) + 1); continue; &#125; m.put(str.charAt(i), 1); &#125; // 遍历数组取第一个只出现一次的字符 for (int i = 0; i &lt; str.length(); i++) if (m.get(str.charAt(i)) == 1) return i; return -1; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题49：丑数]]></title>
+    <url>%2F2018%2F04%2F25%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9849%EF%BC%9A%E4%B8%91%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：我们把只包含因子 2、3 和 5 的数称为丑数（Ugly Number）。求按从小到大的顺序的第 1500 个丑数。例如，6、8 都是丑数，但 14 不是，因为它包含因子 7。习惯上我们把 1 当作第一个丑数。 思路 1：从小到大遍历正整数最直接的思路是：从小到大遍历正整数，一个一个判断是不是丑数，直到第 1500 个为止。这个算法需要判断某个正整数是不是丑数，如何判断呢？连续除以 2，直到余数不等于 0 为止；连续除以 3，直到余数不等于 0 为止；连续除以 5 直到余数不等于 0 为止；最后剩下的数字如果等于 0 则为丑数，否则不是丑数。 这个算法的缺陷在于，需要判断很多不是丑数的正整数，时间效率不是太高。 思路 2：利用生成丑数的规律上一种思路的缺陷在于需要判断很多不是丑数的正整数，如何避免这种缺陷呢？我们可以利用丑数的生成规律：丑数总是由丑数乘 2、3 或 5 生成的。我们通过举例来进一步分析一下： 通过乘 2 所生成的丑数有：1*2、2*2、3*2、4*2、5*2、6*2、8*2、9*2、10*2、12*2、…… 通过乘 3 所生成的丑数有：1*3、2*3、3*3、4*3、5*3、6*3、8*3、9*3、10*3、12*3、…… 通过乘 5 所生成的丑数有：1*5、2*5、3*5、4*5、5*5、6*5、8*5、9*5、10*5、12*5、…… 但是我们需要找到第 1500 个丑数，也就是说丑数需要按顺序排放。使用一个数组存放丑数，然后可以利用 3 个游动指针 $T_2$、$T_3$ 和 $T_5$分别来记录数组中 2、3 和 5 的当前的最小丑数。每次比较 $T_2*2$、$T_3*3$ 和 $T_5*5$ 的大小，将最小的作为新的丑数放入数组中，并使相应的游动指针后移一位。 实现1234567891011121314151617181920212223242526272829public class Solution &#123; public int GetUglyNumber_Solution(int index) &#123; // 特殊输入的检查 if (index &lt; 1) return 0; if (index == 1) return 1; // 指针法 int[] uglyNums = new int[index]; uglyNums[0] = 1; int pos2 = 0, pos3 = 0, pos5 = 0; for (int i = 1; i &lt; index; i++) &#123; int n2 = uglyNums[pos2] * 2; int n3 = uglyNums[pos3] * 3; int n5 = uglyNums[pos5] * 5; int newUglyNum = Math.min(n2, Math.min(n3, n5)); uglyNums[i] = newUglyNum; if (n2 == newUglyNum) pos2++; if (n3 == newUglyNum) pos3++; if (n5 == newUglyNum) pos5++; &#125; return uglyNums[index - 1]; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题45：把数组排成最小的数]]></title>
+    <url>%2F2018%2F04%2F25%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9845%EF%BC%9A%E6%8A%8A%E6%95%B0%E7%BB%84%E6%8E%92%E6%88%90%E6%9C%80%E5%B0%8F%E7%9A%84%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：输入一个正整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。例如，输入数组 {3, 32, 321}，则打印出这 3 个数字能排出的最小数字 321323。 思路 1：全排列最直接的思路是：求出数组中所有数字的全排列，然后找出最小的数字。这样的做法着实简单，但是时间复杂度为 O(n!)，较高，我们需要找到更快的算法。 思路 2：大小比较我们可以尝试举例来寻找思路，{3, 32, 321} 可以排列出 332321, 332132, 323321, 323213, 321332 和 321323。将结果从小到大排序是 321323, 321332, 323213, 323321, 332132, 332321。这里我们可以发现把 321 排在前面会使得结果变小，把 3 排在前面会使得结果变大。 我们可以定义一组比较规则，来比较数组中数字的“大小”。规则如下：对于 m 和 n，如果 mn &lt; nm，那么 m &lt; n；如果 mn = nm，那么 m = n；如果 mn &gt; nm，那么 m &gt; n。使用这组规则可以将数组中的数字进行从小到大排序，然后按照顺序拼接成一个数字，这个数字就是我们要找的结果。 这里存在一个隐晦的问题，在比较的时候，两个 int 数字拼接起来是一个大数问题。因此，我们可以使用字符串将这两个数字拼接，由于 mn 和 nm 的位数相同，我们便可以直接使用字符串比较大小。 我们总结一下这个思路：首先定义一组规则，来比较数组中数字的“大小”，然后使用这组规则可以将数组中的数字进行从小到大排序，然后按照顺序拼接成数字。 由于排序操作需要 $O(n\,log\,n)$ 的时间复杂度，其他的操作均小于它，因此这个算法的时间复杂度是 $O(n\,log\,n)$。 这个算法涉及到自己定义的比较规则，往往需要证明这个规则的有效性与这个算法的有效性。换句话说，也就是需要证明规则是自反的、对称的和传递的；该算法确实能够找到最小的数字。这个部分比较长，就省略拉。 实现1234567891011121314151617181920212223242526272829import java.util.*;public class Solution &#123; public String PrintMinNumber(int[] numbers) &#123; // 特殊输入的检查 if (numbers == null || numbers.length == 0) return ""; // 构建列表 List&lt;Integer&gt; l = new ArrayList&lt;&gt;(); for (int n: numbers) l.add(n); // 自定义排序 l.sort(new Comparator&lt;Integer&gt;() &#123; @Override public int compare(Integer o1, Integer o2) &#123; return ("" + o1 + o2).compareTo("" + o2 + o1); &#125; &#125;); // 按排序结果输出 StringBuilder res = new StringBuilder(); for (int n: l) res.append(n); return res.toString(); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【编程题】生成蛇形矩阵]]></title>
+    <url>%2F2018%2F04%2F22%2F%E3%80%90%E7%BC%96%E7%A8%8B%E9%A2%98%E3%80%91%E7%94%9F%E6%88%90%E8%9B%87%E5%BD%A2%E7%9F%A9%E9%98%B5%2F</url>
+    <content type="text"><![CDATA[本篇博文主要想继上一篇博文，记录一下腾讯复试时面试官出的另一道编程题，要求共享桌面、编辑器编写，不能编译调试，零错误，40 分钟内。 题目：编写一个算法，给定一个整型数字 n，能够生成一个 n*n 维的蛇形矩阵。 例如： 输入：4 输出：1&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;73&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;134&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;12 1410 11 15 16 实现12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273public class Solution &#123; // 防止实例化 private Solution() &#123;&#125; // 生成蛇形矩阵 public static int[][] generateMatrix(int n) &#123; // 特殊输入的检查 if (n &lt; 1) throw new RuntimeException("非法输入"); int[][] result = new int[n][n]; int direction = 1; // 方向变量：1右，2下，3左下，4右上 int count = 1; // 计数器 int row = 0; // 行 int column = 0; // 列 while (count &lt;= (n * n)) &#123; result[row][column] = count++; switch (direction) &#123; case 1: column++; if (row == 0) direction = 3; else direction = 4; break; case 2: row++; if (column == 0) direction = 4; else direction = 3; break; case 3: row++; column--; if (column == 0 &amp;&amp; row != n - 1) direction = 2; else if (row == n - 1) direction = 1; else direction = 3; break; case 4: row--; column++; if (row == 0 &amp;&amp; column != n - 1) direction = 1; else if (column == n - 1) direction = 2; else direction = 4; break; &#125; &#125; return result; &#125; // 测试 public static void main(String[] args) &#123; // int n = 0; // int n = 1; // int n = 5; int n = 6; int[][] m = generateMatrix(n); for (int i = 0; i &lt; n; i++) &#123; for (int j = 0; j &lt; n; j++) System.out.print(m[i][j] + "\t"); System.out.println(); &#125; &#125;&#125;]]></content>
+      <categories>
+        <category>编程题</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【编程题】顺时针打印矩阵]]></title>
+    <url>%2F2018%2F04%2F22%2F%E3%80%90%E7%BC%96%E7%A8%8B%E9%A2%98%E3%80%91%E9%A1%BA%E6%97%B6%E9%92%88%E6%89%93%E5%8D%B0%E7%9F%A9%E9%98%B5%2F</url>
+    <content type="text"><![CDATA[本篇博文主要想讲一讲一道编程题，该题是我面试腾讯时，初始的面试官提出的，要求共享桌面、编辑器编写。 题目：编写一个算法，能够按照从外向里以顺时针的顺序依次输出二维数组中的每一个数字。 例如： 输入：1 2 34 5 67 8 9 输出：1 2 3 6 9 8 7 4 5 实现1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253import java.util.ArrayList;import java.util.List;public class Solution &#123; // 防止实例化 private Solution() &#123;&#125; // 顺时针打印矩阵 public static List&lt;Integer&gt; printMatrix(int[][] matrix) &#123; List&lt;Integer&gt; result = new ArrayList&lt;&gt;(); // 特殊输入的检查 if (matrix == null) return result; int row = matrix.length; int col = matrix[0].length; // 循环圈数 for (int i = 0; (i &lt;= (row - 1) / 2) &amp;&amp; (i &lt;= (col - 1) / 2); i++) &#123; // 从左至右 for (int j = i; j &lt; col - i; j++) result.add(matrix[i][j]); // 从上至下 for (int j = i + 1; j &lt; row - i; j++) result.add(matrix[j][col - i - 1]); // 从右至左 if (i &lt; row - i - 1) for (int j = col - i - 2; j &gt;= i; j--) result.add(matrix[row - i - 1][j]); // 从下至上 if (i &lt; col - i - 1) for (int j = row - i - 2; j &gt;= i + 1; j--) result.add(matrix[j][i]); &#125; return result; &#125; // 测试 public static void main(String[] args) &#123; int[][] a = &#123;&#123;1, 2, 3&#125;, &#123;4, 5, 6&#125;, &#123;7, 8, 9&#125;&#125;;// int[][] a = null;// int[][] a = &#123;&#123;1, 2, 3&#125;&#125;;// int[][] a = &#123;&#123;1&#125;, &#123;2&#125;, &#123;3&#125;&#125;;// int[][] a = &#123;&#123;1&#125;&#125;;// int[][] a = &#123;&#123;1, 2&#125;, &#123;3, 4&#125;, &#123;5, 6&#125;&#125;; List&lt;Integer&gt; res = printMatrix(a); for (int i: res) &#123; System.out.println(i); &#125; &#125;&#125;]]></content>
+      <categories>
+        <category>编程题</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题43：1~n整数中1出现的次数]]></title>
+    <url>%2F2018%2F04%2F15%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9843%EF%BC%9A1-n%E6%95%B4%E6%95%B0%E4%B8%AD1%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。 思路 1：穷举最直接的思路就是：遍历 1~n，找出每个数字中 1 出现的次数。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个位数不为 1；如果这个数字大于 10，则除以 10 之后再进行求余操作。 我们来分析这个算法的时间复杂度，n 这个数字的十进制表示的长度为 $log_{10 }n$，因此求余除法操作的时间复杂度是 O(logn)，我们需要遍历 n 次，因此整个算法的时间复杂度是 O(nlogn)。这样的时间复杂度比较高，我们需要思考更快的算法。 思路 2：排列我们把 n 设置的大一些，让 n=21345，以便于之后的分析。为了更好的阐述这个算法，我们先来就具体的例子来分析一遍。 我们首先把分析对象分成两部分，1~21345 分成 1~19999 和 20000~21345 先对第一部分 1~19999 进行分析。计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数。因此，1~19999 中，当万位为 1 时其余 4 位为任意数字的排列的个数为 $10*10*10*10=10^4=10000$；当千位为 1 时，万位只能取 0 或 1，其他位取任意数字，的排列的个数为 $2*10*10*10=2000$；同理，百位为 1、十位为 1、个位为 1 的排列次数都是 $2*10*10*10=2000$。因此，1~19999 中，总的排列的个数为 $10000+2000*4=18000$ 然后对第二部分 20000~21345 进行分析，因为我们将 1 出现的次数理解成十进制表示中某一位为 1 的排列的个数，所以 20000~21345 可以转换成 0~1345。于是这个部分就变成了求解 1~1345（0 去掉不影响）中 1 出现的次数 对于 1~1345 我们可以根据步骤 1 和 2 递归的求解。把 1~1345 分成 1~999 和 1000~1345。效仿于第 2 步骤的分析，1~999 中 1 出现的次数为 $10*10*10=1000$。1000~1345 可以转换成 1~345 加上 345 次 对于 1~345 我们可以根据步骤 1 和 2 递归的求解。把 1~345 分成 1~299 和 300~345。效仿于第 2 步骤的分析，1~299 中 1 出现的次数为 $10*10+2*3*10=260$。300~345 可以转换成 1~45 对于 1~45 我们可以根据步骤 1 和 2 递归的求解。把 1~45 分成 1~39 和 40~45。效仿于第 2 步骤的分析，1~39 中 1 出现的次数为 $10+4=14$。40~45 可以转换成 1~5 1~5 中 1 出现的次数为 1 因此，1~21345 中 1 出现的次数为 $18000+1000+345+260+14+1=19620$ 根据以上的分析，我们将这个算法进行总结：计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数，因此我们可以使用递归的方法，将 n 从十进制表示的最高位到最低位一步一步计算 1 出现的次数。这个算法的递归深度是 $log\,n$，其他的操作都是常数级别的，因此总的时间复杂度为 $O(log\,n)$。 实现12345678910111213141516171819202122232425262728public class Solution &#123; public int NumberOf1Between1AndN_Solution(int n) &#123; // 特殊输入的检查 if (n &lt; 1) return 0; // 穷举法 int count = 0; for (int i = 1; i &lt;= n; i++) &#123; count += calNumOf1(i); &#125; return count; &#125; private int calNumOf1(int k) &#123; int count = 0; int a = k; while (true) &#123; if (a == 0) break; int lastDigit = a % 10; if (lastDigit == 1) count++; a /= 10; &#125; return count; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题42：连续子数组的最大和]]></title>
+    <url>%2F2018%2F04%2F15%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9842%EF%BC%9A%E8%BF%9E%E7%BB%AD%E5%AD%90%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%A4%A7%E5%92%8C%2F</url>
+    <content type="text"><![CDATA[题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。 例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。 思路 1：穷举最直接的思路就是：穷举数组的所有子数组的情况，然后计算它们的和，找出最大的值。子数组的数量为 $\frac{n(n - 1)}{2}$，因此时间复杂度为 $O(n^2)$，这个时间复杂度是不能让人接受的，我们还得想想其他办法。 思路 2：举例分析数组的规律当我们没有什么思路时，我们可以举例来分析一下数组的规律。我们尝试从头到尾的逐个累加数组中的数字。初始化和为 0。 累加第一个数字 1。和为 1 累加第二个数字 -2。和为 -1，小于 0 累加第三个数字 3。和为 2。这个和比第三个数字的值还小，我们舍弃之前的子数组，从当前数字开始重新累加。这时，和为3 从以上分析中，我们可以发现，一旦累加和小于 0 之后，以这个数为结尾的子数组对于求解和最大的子数组就没什么用了，这是应该舍弃，然后从将和归零，重新累加寻找和最大的子数组。 累加第四个数字 10。和为 13 累加第五个数字 -4。和为 9 累加第六个数字 7。和为 16 累加第七个数字 2。和为 18 累加第八个数字 -5。和为 13 每次累加一个数字其实就相当于在子数组中增加一个数字，计算和也就是计算这个子数组的和。从以上的分析中，我们可以发现，当累加到第七个数字时，和最大，此时的子数组为 {3, 10, -4, 7, 2}，该子数组的和 18 就是我们要找的最大和。 因此，我们可以将思路总结一下：从头到尾的累加数组中的数字，当累加和小于 0 时，就舍弃此时的累加并重置和为当前数字；使用一个临时变量记录累加过程中计算的和的最大值。 该算法只需要从头到尾的遍历一遍数组即可，因此时间复杂度是 O(n)。 思路 3：动态规划一旦涉及到求最值的问题，一般都可以用动态规划来解。这道题希望求解最大值，并且求解的是数组的子数组的相关问题，可能会有重叠的子问题，可以使用动态规划来解。 我们使用 f(i) 来表示以数组中第 i 个数字结尾的子数组的最大和，因此我们需要求解数组中以每个数字结尾的子数组的最大和的最大值，也就是 $max \, f(i), \, 0 \leq i \lt n$。状态转移方程满足： $$f(i) =\begin{cases}pData[i], &amp; i=0 \lor f(i-1) \leq 0\\f(i-1) + pData[i], &amp; i \neq 0 \land f(i-1)&gt;0\end{cases}$$ 这个公式表示：如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”。 实际上，你仔细想想，思路 3 和思路 2 在本质上是相同的，只是表达方式不一样。这个思路的时间复杂度同样是 O(n)。 实现1234567891011121314151617181920public class Solution &#123; public int FindGreatestSumOfSubArray(int[] array) &#123; // 特殊输入的检查 if (array == null || array.length == 0) return 0; if (array.length == 1) return array[0]; // 动态规划 int max = array[0]; int lastSum = array[0]; for (int i = 1; i &lt; array.length; i++) &#123; lastSum = Math.max(lastSum + array[i], array[i]); if (max &lt; lastSum) max = lastSum; &#125; return max; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题40：最小的k个数]]></title>
+    <url>%2F2018%2F04%2F15%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9840%EF%BC%9A%E6%9C%80%E5%B0%8F%E7%9A%84k%E4%B8%AA%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。 思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路 2：Partition我们一定要将整个数组彻底的排序才能找到最小的 k 个数字吗？不一定，这个算法的思路灵感来源于快速排序。 思路是： 挑选数组中的一个数字，调整数组的顺序，使得比选中的数字小的数字排在它的左边，比选中的数字大的数字排在它的右边 查看这时选中的数字的索引是否等于 k 或者 k+1。如果等于 k，那么这时选中的数字与它左边的数字就是最小的 k 个数；如果等于 k+1，那么这时选中的数字的左边的数字就是最小的 k 个数；否则继续对右边的部分进行递归的搜索 这个算法不需要将整个数据进行彻底的排序，只需要局部的排序就能达到目的。时间复杂度为 O(n)，但是需要修改输入的数组，并且不适用于海量数据。 思路 3：堆和红黑树这个算法的思路其实很自然，就是使用一个数据容器装着最小的 k 个数。具体是： 从头到尾遍历数组 如果数据容器没有装满，就将数字装入数据容器中；如果数据容器装满了，就选出数据容器中最大的数字，拿当前数字与这个最大的数字进行比较，如果当前数字大则抛弃它，如果当前数字小则替换掉最大的数字 当数据容器选择堆或者红黑树时，对数据容器中的元素进行增删查只需要 O(logk) 的时间复杂度，然后我们需要遍历整个数组，因此这个算法的时间复杂度是 O(nlogk)。这个算法不需要修改输入数组，而且可以使用流的方式处理海量数据。 实现123456789101112131415161718192021222324252627282930import java.util.ArrayList;import java.util.PriorityQueue;public class Solution &#123; public ArrayList&lt;Integer&gt; GetLeastNumbers_Solution(int[] input, int k) &#123; ArrayList&lt;Integer&gt; res = new ArrayList&lt;&gt;(); // 特殊输入的检查 if (input == null || input.length == 0 || k == 0) return res; if (k &gt; input.length) return res; // 最大堆的思路 PriorityQueue&lt;Integer&gt; q = new PriorityQueue&lt;&gt;(k, (o1, o2) -&gt; o2 - o1); for (int i = 0; i &lt; k; i++) q.offer(input[i]); for (int i = k; i &lt; input.length; i++) &#123; if (input[i] &gt; q.peek()) continue; q.poll(); q.offer(input[i]); &#125; for (int a: q) res.add(a); return res; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题39：数组中出现次数超过一半的数字]]></title>
+    <url>%2F2018%2F04%2F15%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9839%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[题目：数组中有一个数字出现的次数超过了数组长度的一半，请找出这个数字。例如，输入一个长度为 9 的数组 {1, 2, 3, 2, 2, 2, 5, 4, 2}。由于数组 2 在数组中出现了 5 次，超出数组长度的一半，因此输出 2。 思路 1：排序最直接的思路就是：将这个数组排序，排序完之后数组就是有序的了，然后直接访问这个数组的中位数，也就是索引为 $\frac{n}{2}$ 的元素，就是我们寻找的数字。但是这个算法的时间复杂度比较高，排序所需要的时间复杂度是 O(nlogn)，并且需要修改输入的数组。这个算法能够在面试官刚提出题目之后快速的答上来，可以体现自己思维比较敏捷，但是需要能够提出时间复杂度更小的算法才能够获得面试官的青睐。 思路 2：Partition从上一个思路，我们可以得到启发，实际上我们就是要找到排好序之后索引为 $\frac{n}{2}$ 的元素，也就是中位数。那我们一定要把整个数组完全的排好序吗？这不一定，这个算法的灵感来源于快速排序。 算法思路就是： 我们先选择数组中的一个数字，然后调整数组中数字的顺序，使得比选中的数字小的数字放置于它的左边，比选中的数字大的数字放置于它的右边 判断选中的数字的索引是否等于 $\frac{n}{2}$。如果相等，这个数字就是我们寻找的数字，也就是中位数；如果大于 $\frac{n}{2}$，那么中位数在它的左边，对左边的部分递归的查找；如果小于 $\frac{n}{2}$，那么中位数在它的右边，对右边的部分递归的查找 这样做不需要对整个数组排序，只需要局部的排序就能够达到目的，算法的时间复杂度是 O(n)。但是缺点在于依然需要修改输入的数组。 思路 3：阵地攻守输入的数组中有一个数字超过了数组长度的一半，也就是说，这个数字的个数比其他所有数字的个数都要多。基于这个特点，我们便产生了一个不需要修改数组的思路：阵地攻守。简而言之，也就是，遇到敌人同归于尽，遇到同伴数量增加。 思路是：我们使用一个临时变量存储数字，另一个临时变量存储次数。从头到尾的遍历数组，如果当前数字与数字变量（也就是之前保存的数字）中的数字相同，次数变量就加 1，否则就减 1；如果次数为 0，那么我们需要将数字变量赋值为当前数字，并把次数变量赋值为 1。由于我们要寻找的数字比其他数字的个数都要多，因此最后在数字变量中存储并且次数变量大于 0 的数字就是我们要寻找的数字。 这个算法只需要从头到尾的遍历一遍数组，因此算法的时间复杂度是 O(n)，并且不需要修改输入的数组。 实现123456789101112131415161718192021222324252627282930313233343536public class Solution &#123; public int MoreThanHalfNum_Solution(int[] array) &#123; // 特殊输入的检查 if (array == null || array.length == 0) return 0; if (array.length == 1) return array[0]; int count = 1; int num = array[0]; // 阵地攻守的思想：遇到敌人同归于尽，遇到同伴数量增加 for (int i = 1; i &lt; array.length; i++) &#123; if (count == 0) &#123; num = array[i]; count++; &#125; else &#123; if (num == array[i]) count++; else count--; &#125; &#125; // 检查数组确实有一个数字出现的次数超过数组长度的一半 return checkMoreThanHalf(array, num) ? num : 0; &#125; private boolean checkMoreThanHalf(int[] a, int n) &#123; int count = 0; for (int i = 0; i &lt; a.length; i++) if (n == a[i]) count++; return count &gt; (a.length / 2); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【数据结构与算法】快速排序]]></title>
+    <url>%2F2018%2F04%2F12%2F%E3%80%90%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95%E3%80%91%E5%BF%AB%E9%80%9F%E6%8E%92%E5%BA%8F%2F</url>
+    <content type="text"><![CDATA[快速排序（英语：Quick sort），又称划分交换排序（partition-exchange sort），简称快排，一种排序算法，最早由东尼·霍尔提出。在平均状况下，排序 n 个项目要 $O(n\,log\,n)$ 次比较。在最坏状况下则需要 $O(n^2)$ 次比较，但这种状况并不常见。事实上，快速排序 $O(n\,log\,n)$ 通常明显比其他算法更快，因为它的内部循环（inner loop）可以在大部分的架构上很有效率地达成。 实现123456789101112131415161718192021222324252627282930313233343536373839404142434445464748public class QuikSort &#123; private QuikSort() &#123;&#125; public static void sort(int[] a) &#123; // 特殊输入的检查 if (a == null || a.length &lt;= 1) return; sort(a, 0, a.length - 1); &#125; private static void sort(int[] a, int lo, int hi) &#123; // 退出边界 if (lo &gt;= hi) return; int i = partition(a, lo, hi); sort(a, lo, i); sort(a, i + 1, hi); &#125; private static int partition(int[] a, int lo, int hi) &#123; int p = a[lo]; // 定义中枢元素 int i = lo + 1; int j = hi; while (true) &#123; // 从左至右找出第一个比中枢元素大的元素 while (a[i] &lt;= p &amp;&amp; i &lt; hi) i++; // 从优制作找出最后一个比中枢元素小的元素 while (a[j] &gt; p &amp;&amp; j &gt; lo) j--; // 跳出循环 if (i &gt;= j) break; // 交换元素 swap(a, i, j); &#125; // 交换元素，使得中枢元素位于合适的位置 swap(a, lo, j); return j; &#125; private static void swap(int[] a, int i, int j) &#123; int tmp = a[i]; a[i] = a[j]; a[j] = tmp; &#125;&#125; 参考文献 快速排序 - 维基百科，自由的百科全书 《算法》第四版]]></content>
+      <categories>
+        <category>数据结构与算法</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【数据挖掘】特征选择]]></title>
+    <url>%2F2018%2F04%2F11%2F%E3%80%90%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98%E3%80%91%E7%89%B9%E5%BE%81%E9%80%89%E6%8B%A9%2F</url>
+    <content type="text"><![CDATA[本篇博文主要想谈一谈特征选择。 特征选择是什么在数据挖掘中，特征选择是指从给定的特征集合中选择出相关特征子集（或者剔除无关特征）的过程。 为什么要使用特征选择 简化模型，使之更易于被研究人员或用户理解 缩短训练时间 改善通用性、降低过拟合的可能性（即降低方差） 特征选择的方法将特征子集搜索机制与子集评价机制相结合，即可得到特征选择方法。常见的特征选择方法大致可以分为三类：过滤式（Filter）、包裹式（Wrapper）和嵌入式（Embedding）。 1. 过滤式（Filter）过滤式方法指，通过某种评价指标计算每一维特征的重要性，基于重要性分数对特征集合进行特征选择，然后再训练学习器，特征选择过程与后续学习器无关。这相当于先用特征选择对初始特征进行“过滤”，再用过滤后的特征来训练模型。 衡量每一维特征重要性的评价指标主要从两个方面来考虑： 特征是否发散：如果一个特征不发散，例如方差接近于0，也就是说样本在这个特征上基本上没有差异，这个特征对于样本的区分并没有什么用。 特征与目标的相关性：这点比较显见，与目标相关性高的特征，应当优选选择。除方差法外，本文介绍的其他方法均从相关性考虑。 a. 方差先要计算各个特征的方差，然后根据阈值，选择方差大于阈值的特征。使用 feature_selection 库的 VarianceThreshold 类来选择特征的代码如下： 12345from sklearn.feature_selection import VarianceThreshold# 参数 threshold 为方差的阈值# 返回值为特征选择后的数据VarianceThreshold(threshold=3).fit_transform(iris.data) b. 相关系数先要计算各个特征对目标的相关系数以及相关系数的 P 值。用 feature_selection 库的 SelectKBest 类结合相关系数来选择特征的代码如下： 1234567from sklearn.feature_selection import SelectKBestfrom scipy.stats import pearsonr# 第一个参数为计算评估特征是否好的函数，该函数输入特征矩阵和目标向量，输出二元组 (评分，P值) 的数组，数组第 i 项为第 i 个特征的评分和 P 值。在此定义为计算相关系数# 第二个参数 k 为选择的特征个数# 返回值为特征选择后的数据SelectKBest(lambda X, Y: array(map(lambda x:pearsonr(x, Y), X.T)).T, k=2).fit_transform(iris.data, iris.target) c. 卡方检验假设自变量有 N 种取值，因变量有 M 种取值，考虑自变量等于 i 且因变量等于 j 的样本频数的观察值与期望的差距，构建统计量： $${\chi}^2 = \sum \frac{(A - E)^2}{E}$$ 简而言之，该统计量的含义指自变量对因变量的相关性。用 feature_selection 库的 SelectKBest 类结合卡方检验来选择特征的代码如下： 123456from sklearn.feature_selection import SelectKBestfrom sklearn.feature_selection import chi2# 参数 K 为选择的特征个数# 返回值为特征选择后的数据SelectKBest(chi2, k=2).fit_transform(iris.data, iris.target) d. 互信息使用 feature_selection 库的 SelectKBest 类结合最大信息系数法来选择特征的代码如下： 123456789101112from sklearn.feature_selection import SelectKBestfrom minepy import MINE# 由于 MINE 的设计不是函数式的，定义 mic 方法将其为函数式的，返回一个二元组，二元组的第 2 项设置成固定的 P 值 0.5def mic(x, y): m = MINE() m.compute_score(x, y) return (m.mic(), 0.5)# 参数 K 为选择的特征个数# 返回值为特征选择后的数据SelectKBest(lambda X, Y: array(map(lambda x:mic(x, Y), X.T)).T, k=2).fit_transform(iris.data, iris.target) 2. 包裹式（Wrapper）与过滤式不考虑后续学习器不同，包裹式直接把最终将要使用的学习器的性能作为特征子集的评价准则。换言之，包裹式的目的就是为给定学习器选择最有利其性能、“量身定做”的特征子集。 a. 递归特征消除法递归消除特征法使用一个基模型来进行多轮训练，每轮训练后，消除若干权值系数的特征，再基于新的特征集进行下一轮训练。使用 feature_selection 库的 RFE 类来选择特征的代码如下： 1234567from sklearn.feature_selection import RFEfrom sklearn.linear_model import LogisticRegression# 参数 estimator 为基模型# 参数 n_features_to_select 为选择的特征个数# 返回值为特征选择后的数据RFE(estimator=LogisticRegression(), n_features_to_select=2).fit_transform(iris.data, iris.target) b. 现代智能优化算法将特征子集的选择看作是一个优化问题，这样就可以使用一些启发式的现代智能优化算法，例如：遗传算法、模拟退火算法等。 3. 嵌入式（Embedding）在过滤式和包裹式的特征选择方法中，特征选择过程与学习器训练过程有明显分别；与此不同，嵌入式是将特征选择过程与学习器训练过程融为一体，两者在同一个优化过程中完成，即在学习器训练过程中自动地进行了特征选择。 a. L1 正则化L1 正则化更易于获得“稀疏”解，即它求得的 w 会有更少的非零分量，也就意味着初始的 d 个特征中仅有对应着 w 的非零分量的特征才会出现在最终的模型中，进而达到了特征选择的效果。使用 feature_selection 库的 SelectFromModel 类结合带 L1 正则项的逻辑回归模型，来选择特征的代码如下： 12345from sklearn.feature_selection import SelectFromModelfrom sklearn.linear_model import LogisticRegression# 返回值为特征选择后的数据SelectFromModel(LogisticRegression(penalty="l1", C=0.1)).fit_transform(iris.data, iris.target) 参考文献 《机器学习》周志华 特征选择 - 维基百科，自由的百科全书 机器学习中的特征——特征选择的方法以及注意点 - CSDN博客 使用sklearn做单机特征工程 - jasonfreak - 博客园]]></content>
+      <categories>
+        <category>数据挖掘</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题38：字符串的排列]]></title>
+    <url>%2F2018%2F04%2F09%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9838%EF%BC%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E6%8E%92%E5%88%97%2F</url>
+    <content type="text"><![CDATA[题目：输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向。 实现1234567891011121314151617181920212223242526272829303132333435363738394041/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; private TreeNode head; private TreeNode curNode; public TreeNode Convert(TreeNode pRootOfTree) &#123; // 特殊输入的检查 if (pRootOfTree == null) return null; inorder(pRootOfTree); return head; &#125; private void inorder(TreeNode n) &#123; // 退出边界 if (n == null) return; inorder(n.left); if (curNode == null) &#123; head = n; curNode = n; &#125; else &#123; curNode.right = n; n.left = curNode; curNode = n; &#125; inorder(n.right); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题36：二叉搜索树与双向链表]]></title>
+    <url>%2F2018%2F04%2F09%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9836%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E4%B8%8E%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8%2F</url>
+    <content type="text"><![CDATA[题目：输入一个字符串，按字典序打印出该字符串中字符的所有排列。例如输入字符串 abc，则打印出由字符 a, b, c 所能排列出来的所有字符串 abc, acb, bac, bca, cab 和 cba。 实现12345678910111213141516171819202122232425262728293031323334353637383940414243import java.util.*;public class Solution &#123; public ArrayList&lt;String&gt; Permutation(String str) &#123; ArrayList&lt;String&gt; res = new ArrayList&lt;&gt;(); // 特殊输入的检查 if (str == null || str.length() == 0) return res; perm(str.toCharArray(), 0, res); Collections.sort(res); return res; &#125; private void perm(char[] s, int ind, ArrayList&lt;String&gt; res) &#123; // 退出边界 if (ind == s.length - 1) &#123; res.add(String.valueOf(s)); return; &#125; Set&lt;Character&gt; set = new HashSet&lt;&gt;(); for (int i = ind; i &lt; s.length; i++) &#123; if (set.contains(s[i])) continue; set.add(s[i]); swap(s, ind, i); perm(s, ind + 1, res); swap(s, ind, i); &#125; &#125; private void swap(char[] s, int a, int b) &#123; // 参数检查 if (a &lt; 0 || a &gt;= s.length || b &lt; 0 || b &gt;= s.length) throw new RuntimeException("超出数组边界"); char tmp = s[a]; s[a] = s[b]; s[b] = tmp; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【数据挖掘】类别不平衡问题]]></title>
+    <url>%2F2018%2F04%2F07%2F%E3%80%90%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98%E3%80%91%E7%B1%BB%E5%88%AB%E4%B8%8D%E5%B9%B3%E8%A1%A1%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[本篇博文主要想谈一谈类别不平衡问题是什么和如何解决类别不平衡问题。 类别不平衡问题是什么？类别不平衡是分类任务中一个典型的问题。简而言之，即数据集中，每个类别下的样本数量相差很大。例如，在一个二分类问题中，共有 100 个样本（100 行数据，每一行数据为一个样本的表征），其中 80 个样本属于类别 1，其余的 20 个样本属于类别 2，$类别 1:类别 2=80:20=4:1$，这便属于类别不平衡。当然，类别不平衡同样会发生在多分类任务中。它们的解决方法是一样的。因此，为了便于讨论与理解，我们从二分类任务入手进行讲解，我们称样本数量多的类别为大类，样本数量少的类别为小类。 类别不平衡问题的解决方案1. 扩大数据集当遇到类别不均衡问题时，首先应该想到，是否可能再增加数据（一定要有小类样本数据），更多的数据往往能够战胜更好的算法。因为机器学习是使用现有的数据近似整个数据的分布来进行估计，因此更多的数据往往能够得到更多的分布信息，以及更好分布估计。即使在增加小类样本数据的同时，又增加了更多的大类样本数据，可以移除一部分大类数据（即对大类数据进行欠采样）。 2. 尝试其它评价指标Accuracy 这个评价指标在类别不平衡的分类任务中并不能 work，甚至产生了误导。因此在类别不平衡分类任务中，需要使用更有说服力的评价指标来对分类器进行评价： 混淆矩阵（Confusion Matrix）：使用一个表格对分类器所预测的类别与其真实的类别的样本统计，分别为：TP、FN、FP 与 TN。 精确度（Precision） 召回率（Recall） F1值（F1 Score）：精确度与召回率的加权平均 Kappa（Cohen kappa） AUC 值或者 ROC 曲线 3. 对数据集进行重采样可以使用一些策略该减轻数据的不平衡程度。该策略便是采样（Sampling），主要有两种采样方法来降低数据的不平衡性： 对小类的数据样本进行采样来增加小类的数据样本个数，即过采样（over-sampling） 对大类的数据样本进行采样来减少该类数据样本的个数，即欠采样（under-sampling） 采样算法往往很容易实现，并且其运行速度快，并且效果也不错。这里有一些经验法则： 考虑对大类下的样本（超过 1 万、十万甚至更多）进行欠采样，即删除部分样本 考虑对小类下的样本（不足 1 甚至更少）进行过采样，即添加部分样本的副本 考虑尝试随机采样与非随机采样两种采样方法 考虑对各类别尝试不同的采样比例，比一定是 1:1，有时候 1:1 反而不好，因为与现实情况相差甚远 考虑同时使用过采样与欠采样 4. 尝试产生人工数据样本一种简单的人工样本数据产生的方法是：对该类下的所有样本每个属性特征的取值空间中随机选取一个，构成新的样本，即属性值随机采样。你可以使用基于经验对属性值进行随机采样而构造新的人工样本，或者使用类似朴素贝叶斯方法假设各属性之间互相独立进行采样，这样便可得到更多的数据，但是无法保证属性之间的线性关系（如果本身是存在的）。 比较经典的构造人工数据样本的方法是 SMOTE（Synthetic Minority Over-sampling Technique）。SMOTE 是一种过采样算法，该算法构造的数据是新样本，原数据集中不存在的。基于距离度量，它选择小类别下两个或者更多的相似样本，然后选择其中一个样本，并随机选择一定数量的邻居样本对选择的那个样本的一个属性增加噪声，每次处理一个属性。这样就构造了很多的新样本。 5. 尝试不同的分类算法强烈建议不要对待每一个分类都使用自己喜欢而熟悉的分类算法。应该使用不同的算法对其进行比较，因为不同的算法使用于不同的任务与数据。 决策树往往在类别不平衡数据上表现不错。它使用基于类变量的划分规则去创建分类树，因此可以强制地将不同类别的样本分开。 6. 尝试对模型进行惩罚你可以使用相同的分类算法，但是使用一个不同的角度，比如你的分类任务是识别那些小类，那么可以对分类器的小类样本数据增加权值，降低大类样本的权值（这种方法其实是产生了新的数据分布，即产生了新的数据集），从而使得分类器将重点集中在小类样本身上。一个具体做法是，在训练分类器时，若分类器将小类样本分错时额外增加分类器一个小类样本分错代价，这个额外的代价可以使得分类器更加“关心”小类样本。如 penalized-SVM 和 penalized-LDA 算法。 如果你锁定了一个具体的算法时，并且无法通过使用重采样来解决不平衡问题而得到较差的分类结果。这样你便可以使用惩罚模型来解决不平衡问题。但是，设置惩罚矩阵是一个复杂的事，因此你需要根据你的任务尝试不同的惩罚矩阵，并选取一个较好的惩罚矩阵。 7. 尝试一个新的角度理解问题我们可以从不同于分类的角度去解决类别不平衡问题，我们可以把那些小类的样本作为异常点（Outliers），因此该问题便转化为异常点检测（Anomaly Detection）与变化趋势检测问题（Change Detection）。 异常点检测即是对那些罕见事件进行识别。如通过机器的部件的振动识别机器故障，又如通过系统调用序列识别恶意程序。这些事件相对于正常情况是很少见的。 变化趋势检测类似于异常点检测，不同在于其通过检测不寻常的变化趋势来识别。如通过观察用户模式或银行交易来检测用户行为的不寻常改变。 将小类样本作为异常点这种思维的转变，可以帮助考虑新的方法去分离或分类样本。这两种方法从不同的角度去思考，让你尝试新的方法去解决问题。 8. 尝试创新仔细对你的问题进行分析与挖掘，是否可以将你的问题划分成多个更小的问题，而这些小问题更容易解决。例如： 将你的大类压缩成小类 使用 One Class 分类器（将小类作为异常点） 使用集成方式，训练多个分类器，然后联合这些分类器进行分类 … 参考文献 8 Tactics to Combat Imbalanced Classes in Your Machine Learning Dataset]]></content>
+      <categories>
+        <category>数据挖掘</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题35：复杂链表的复制]]></title>
+    <url>%2F2018%2F04%2F07%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9835%EF%BC%9A%E5%A4%8D%E6%9D%82%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6%2F</url>
+    <content type="text"><![CDATA[题目：输入一个复杂链表（每个节点中有节点值，以及两个指针，一个指向下一个节点，另一个特殊指针指向任意一个节点），返回结果为复制后复杂链表的 head。（注意，输出结果中请不要返回参数中的节点引用，否则判题程序会直接返回空） 实现1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253/*public class RandomListNode &#123; int label; RandomListNode next = null; RandomListNode random = null; RandomListNode(int label) &#123; this.label = label; &#125;&#125;*/public class Solution &#123; public RandomListNode Clone(RandomListNode pHead) &#123; // 特殊输入的检查 if (pHead == null) return null; // 复制节点，放置在原节点的后面。例如：(a -&gt; b -&gt; c) --&gt; (a -&gt; a' -&gt; b -&gt; b' -&gt; c -&gt; c') RandomListNode n = pHead; while (n != null) &#123; RandomListNode nCopy = new RandomListNode(n.label); nCopy.next = n.next; n.next = nCopy; n = nCopy.next;; &#125; // 复制 random 指针 n = pHead; while (n != null) &#123; if (n.random != null) &#123; n.next.random = n.random.next; &#125; n = n.next.next; &#125; // 拆分链表 RandomListNode newHead = pHead.next; RandomListNode newN = newHead; n = pHead; while (n != null) &#123; n.next = newN.next; n = n.next; if (n != null) &#123; newN.next = n.next; newN = newN.next; &#125; else &#123; newN.next = null; &#125; &#125; return newHead; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题34：二叉树中和为某一值的路径]]></title>
+    <url>%2F2018%2F04%2F07%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9834%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD%E5%92%8C%E4%B8%BA%E6%9F%90%E4%B8%80%E5%80%BC%E7%9A%84%E8%B7%AF%E5%BE%84%2F</url>
+    <content type="text"><![CDATA[题目：输入一颗二叉树和一个整数，打印出二叉树中结点值的和为输入整数的所有路径。路径定义为从树的根结点开始往下一直到叶结点所经过的结点形成一条路径。 实现12345678910111213141516171819202122232425262728293031323334353637383940414243444546/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/import java.util.ArrayList;public class Solution &#123; public ArrayList&lt;ArrayList&lt;Integer&gt;&gt; FindPath(TreeNode root, int target) &#123; ArrayList&lt;ArrayList&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;(); // 特殊输入的检查 if (root == null) return res; recursiveFindPath(root, target, 0, new ArrayList&lt;Integer&gt;(), res); return res; &#125; private void recursiveFindPath(TreeNode n, int t, int sum, ArrayList&lt;Integer&gt; path, ArrayList&lt;ArrayList&lt;Integer&gt;&gt; res) &#123; // 退出边界 if (n == null) return; sum += n.val; path.add(n.val); // 检查是否是叶子节点 if (n.left == null &amp;&amp; n.right == null) &#123; if (sum == t) &#123; res.add(new ArrayList(path)); &#125; &#125; recursiveFindPath(n.left, t, sum, path, res); recursiveFindPath(n.right, t, sum, path, res); path.remove(path.size() - 1); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题33：二叉搜索树的后序遍历序列]]></title>
+    <url>%2F2018%2F04%2F04%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9833%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%2F</url>
+    <content type="text"><![CDATA[题目：输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历的结果。如果是则输出 Yes，否则输出 No。假设输入的数组的任意两个数字都互不相同。 实现1234567891011121314151617181920212223242526272829303132public class Solution &#123; public boolean VerifySquenceOfBST(int[] sequence) &#123; // 特殊输入的检查 if (sequence == null || sequence.length == 0) return false; return verify(sequence, 0, sequence.length); &#125; private boolean verify(int[] s, int lo, int hi) &#123; // 退出边界 if (hi - lo &lt;= 1) return true; // 查找划分下标 int split = lo; for (; split &lt; hi - 1; split++) &#123; if (s[split] &gt; s[hi - 1]) &#123; break; &#125; &#125; // 验证右边部分大于等于最后的节点 for (int i = split; i &lt; hi - 1; i++) &#123; if (s[i] &lt; s[hi - 1]) &#123; return false; &#125; &#125; return verify(s, lo, split) &amp;&amp; verify(s, split, hi - 1); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题32：从上到下打印二叉树]]></title>
+    <url>%2F2018%2F04%2F04%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9832%EF%BC%9A%E4%BB%8E%E4%B8%8A%E5%88%B0%E4%B8%8B%E6%89%93%E5%8D%B0%E4%BA%8C%E5%8F%89%E6%A0%91%2F</url>
+    <content type="text"><![CDATA[题目：从上往下打印出二叉树的每个节点，同层节点从左至右打印。 实现1234567891011121314151617181920212223242526272829303132333435/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/import java.util.*;public class Solution &#123; public ArrayList&lt;Integer&gt; PrintFromTopToBottom(TreeNode root) &#123; ArrayList&lt;Integer&gt; res = new ArrayList&lt;&gt;(); // 特殊输入的检查 if (root == null) return res; Queue&lt;TreeNode&gt; q = new LinkedList&lt;&gt;(); q.add(root); while (!q.isEmpty()) &#123; TreeNode n = q.remove(); res.add(n.val); if (n.left != null) q.add(n.left); if (n.right != null) q.add(n.right); &#125; return res; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题31：栈的压入、弹出序列]]></title>
+    <url>%2F2018%2F04%2F04%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9831%EF%BC%9A%E6%A0%88%E7%9A%84%E5%8E%8B%E5%85%A5%E3%80%81%E5%BC%B9%E5%87%BA%E5%BA%8F%E5%88%97%2F</url>
+    <content type="text"><![CDATA[题目：输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列 1, 2, 3, 4, 5 是某栈的压入顺序，序列 4, 5, 3, 2, 1 是该压栈序列对应的一个弹出序列，但 4, 3, 5, 1, 2 就不可能是该压栈序列的弹出序列。（注意：这两个序列的长度是相等的） 实现1234567891011121314151617181920import java.util.ArrayList;import java.util.Stack;public class Solution &#123; public boolean IsPopOrder(int[] pushA, int[] popA) &#123; // 特殊输入的检查 if (pushA == null || pushA.length == 0 || popA == null || popA.length == 0 || pushA.length != popA.length) return false; Stack&lt;Integer&gt; s = new Stack&lt;&gt;(); for (int i = 0, j = 0; i &lt; pushA.length; i++) &#123; s.push(pushA[i]); while (j &lt; popA.length &amp;&amp; s.peek() == popA[j]) &#123; s.pop(); j++; &#125; &#125; return s.empty(); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题30：包含min函数的栈]]></title>
+    <url>%2F2018%2F04%2F04%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9830%EF%BC%9A%E5%8C%85%E5%90%ABmin%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%88%2F</url>
+    <content type="text"><![CDATA[题目：定义栈的数据结构，请在该类型中实现一个能够得到栈最小元素的min函数。 实现123456789101112131415161718192021222324252627282930import java.util.Stack;public class Solution &#123; private Stack&lt;Integer&gt; s = new Stack&lt;&gt;(); private Stack&lt;Integer&gt; min = new Stack&lt;&gt;(); public void push(int node) &#123; if (min.empty()) &#123; s.push(node); min.push(node); return; &#125; s.push(node); min.push((node &lt; min.peek()) ? node : min.peek()); &#125; public void pop() &#123; s.pop(); min.pop(); &#125; public int top() &#123; return s.peek(); &#125; public int min() &#123; return min.peek(); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题29：顺时针打印矩阵]]></title>
+    <url>%2F2018%2F04%2F03%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9829%EF%BC%9A%E9%A1%BA%E6%97%B6%E9%92%88%E6%89%93%E5%8D%B0%E7%9F%A9%E9%98%B5%2F</url>
+    <content type="text"><![CDATA[题目：输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。例如，如果输入如下矩阵：1 2 3 45 6 7 89 10 11 1213 14 15 16则依次打印出数字1, 2, 3, 4, 8, 12, 16, 15, 14, 13, 9, 5, 6, 7, 11, 10 实现12345678910111213141516171819202122232425262728293031323334/**import java.util.ArrayList;public class Solution &#123; public ArrayList&lt;Integer&gt; printMatrix(int [][] matrix) &#123; ArrayList&lt;Integer&gt; res = new ArrayList&lt;Integer&gt;(); // 特殊输入的检查 if (matrix == null) return res; int row = matrix.length; int col = matrix[0].length; // 循环次数=圈数（已经开始进入圈中了也算一圈） for (int i = 0; i &lt;= ((row - 1) / 2) &amp;&amp; i &lt;= ((col - 1) / 2); i++) &#123; // 从左至右 for (int j = i; j &lt; col - i; j++) res.add(matrix[i][j]); // 从上至下 for (int j = i + 1; j &lt; row - i; j++) res.add(matrix[j][col - i - 1]); // 从右至左 if (row - i - 1 &gt; i) for (int j = col - i - 2; j &gt;= i; j--) res.add(matrix[row - i - 1][j]); // 从下至上 if (col - i - 1 &gt; i) for (int j = row - i - 2; j &gt;= i + 1; j--) res.add(matrix[j][i]); &#125; return res; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题27：二叉树的镜像]]></title>
+    <url>%2F2018%2F04%2F03%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9827%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%95%9C%E5%83%8F%2F</url>
+    <content type="text"><![CDATA[题目：操作给定的二叉树，将其变换为源二叉树的镜像。输入描述:二叉树的镜像定义：源二叉树：&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;&nbsp;6&nbsp;&nbsp;10&nbsp;/&nbsp;\&nbsp;&nbsp;&nbsp;/&nbsp;\5&nbsp;7&nbsp;9&nbsp;11镜像二叉树：&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;\&nbsp;10&nbsp;&nbsp;6&nbsp;/&nbsp;\&nbsp;&nbsp;/&nbsp;\11&nbsp;9&nbsp;7&nbsp;5 实现12345678910111213141516171819202122232425/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public void Mirror(TreeNode root) &#123; // 特殊输入的检查 if (root == null) return; TreeNode tmp = root.left; root.left = root.right; root.right = tmp; Mirror(root.left); Mirror(root.right); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题26：树的子结构]]></title>
+    <url>%2F2018%2F04%2F03%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9826%EF%BC%9A%E6%A0%91%E7%9A%84%E5%AD%90%E7%BB%93%E6%9E%84%2F</url>
+    <content type="text"><![CDATA[题目：输入两棵二叉树 A，B，判断 B 是不是 A 的子结构。（ps：我们约定空树不是任意一个树的子结构） 实现12345678910111213141516171819202122232425262728293031323334353637383940414243/**public class TreeNode &#123; int val = 0; TreeNode left = null; TreeNode right = null; public TreeNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public boolean HasSubtree(TreeNode root1,TreeNode root2) &#123; // 特殊输入的检查 if (root1 == null || root2 == null) return false; return recursiveVisitTree(root1, root2); &#125; // 先序遍历 private boolean recursiveVisitTree(TreeNode n, TreeNode m) &#123; // 退出边界 if (n == null) return false; boolean result = false; if (n.val == m.val) &#123; result = hasSameStructure(n, m); &#125; return result || recursiveVisitTree(n.left, m) || recursiveVisitTree(n.right, m); &#125; private boolean hasSameStructure(TreeNode n, TreeNode m) &#123; if (m == null) return true; if (n == null) return false; return (n.val == m.val) &amp;&amp; hasSameStructure(n.left, m.left) &amp;&amp; hasSameStructure(n.right, m.right); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题25：合并两个排序的链表]]></title>
+    <url>%2F2018%2F03%2F30%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9825%EF%BC%9A%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%8E%92%E5%BA%8F%E7%9A%84%E9%93%BE%E8%A1%A8%2F</url>
+    <content type="text"><![CDATA[题目：输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则。 实现123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657/*public class ListNode &#123; int val; ListNode next = null; ListNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public ListNode Merge(ListNode list1, ListNode list2) &#123; // 特殊输入的检查 if (list1 == null) return list2; if (list2 == null) return list1; // 定义节点变量 ListNode head = null; ListNode p = null; ListNode q = null; ListNode n = null; if (list1.val &lt;= list2.val) &#123; head = list1; p = list1.next; q = list2; n = list1; &#125; else &#123; head = list2; p = list1; q = list2.next; n = list2; &#125; // 遍历两个链表 while (p != null &amp;&amp; q != null) &#123; if (p.val &lt;= q.val) &#123; n.next = p; n = p; p = p.next; &#125; else &#123; n.next = q; n = q; q = q.next; &#125; &#125; if (p == null) &#123; n.next = q; &#125; else if (q == null) &#123; n.next = p; &#125; return head; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题24：反转链表]]></title>
+    <url>%2F2018%2F03%2F30%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9824%EF%BC%9A%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%2F</url>
+    <content type="text"><![CDATA[题目：输入一个链表，反转链表后，输出链表的所有元素。 实现123456789101112131415161718192021222324252627282930313233/*public class ListNode &#123; int val; ListNode next = null; ListNode(int val) &#123; this.val = val; &#125;&#125;*/public class Solution &#123; public ListNode ReverseList(ListNode head) &#123; // 特殊输入的检查 if (head == null || head.next == null) return head; // 定义节点变量 ListNode pre = null; ListNode n = head; ListNode pos = null; // 遍历所有节点 while (n != null) &#123; pos = n.next; n.next = pre; pre = n; n = pos; &#125; return pre; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题22：链表中倒数第k个节点]]></title>
+    <url>%2F2018%2F03%2F30%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9822%EF%BC%9A%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E7%AC%ACk%E4%B8%AA%E8%8A%82%E7%82%B9%2F</url>
+    <content type="text"><![CDATA[题目：输入一个链表，输出该链表中倒数第 k 个结点。 实现12345678910111213141516171819202122232425262728293031323334/*public class ListNode &#123; int val; ListNode next = null; ListNode(int val) &#123; this.val = val; &#125;&#125;*/import java.util.Stack;public class Solution &#123; public ListNode FindKthToTail(ListNode head, int k) &#123; // 特殊输入的检查 if (head == null || k &lt;= 0) return null; // 双指针 ListNode pre = head; ListNode pos = head; for (int i = 0; i &lt; k; i++) &#123; if (pre == null) return null; pre = pre.next; &#125; while (pre != null) &#123; pre = pre.next; pos = pos.next; &#125; return pos; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面]]></title>
+    <url>%2F2018%2F03%2F30%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9821%EF%BC%9A%E8%B0%83%E6%95%B4%E6%95%B0%E7%BB%84%E9%A1%BA%E5%BA%8F%E4%BD%BF%E5%A5%87%E6%95%B0%E4%BD%8D%E4%BA%8E%E5%81%B6%E6%95%B0%E5%89%8D%E9%9D%A2%2F</url>
+    <content type="text"><![CDATA[题目：输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前半部分，所有的偶数位于位于数组的后半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。 实现12345678910111213141516171819202122232425262728public class Solution &#123; public void reOrderArray(int [] array) &#123; // 特殊输入的检查 if (array == null || array.length &lt;= 1) return; // 参考插入排序的思想 for (int i = 0; i &lt; array.length; i++) &#123; // 寻找偶数 if (isEven(array[i])) &#123; // 寻找奇数 for (int j = i + 1; j &lt; array.length; j++) &#123; if (!isEven(array[j])) &#123; // 将奇数插入到偶数前面 int tmp = array[j]; for (int k = j; k &gt; i; k--) array[k] = array[k - 1]; array[i] = tmp; break; &#125; &#125; &#125; &#125; &#125; private boolean isEven(int num) &#123; return num % 2 == 0; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题16：数值的整数次方]]></title>
+    <url>%2F2018%2F03%2F29%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9816%EF%BC%9A%E6%95%B0%E5%80%BC%E7%9A%84%E6%95%B4%E6%95%B0%E6%AC%A1%E6%96%B9%2F</url>
+    <content type="text"><![CDATA[题目：给定一个 double 类型的浮点数 base 和 int 类型的整数 exponent。求 base 的 exponent 次方。 实现123456789101112131415161718192021222324252627282930public class Solution &#123; public double Power(double base, int exponent) &#123; // 特殊输入的检查 if (base == 0 &amp;&amp; exponent &lt; 0) throw new RuntimeException("分母不能为0"); if (base == 0) return 0; if (exponent == 0) return 1; // 判断 exponent 的符号 int absExp = 0; if (exponent &gt; 0) absExp = exponent; else if (exponent &lt; 0) absExp = -exponent; // 按指数二进制表示，迭代 double tmp = base; double res = 1; while (absExp != 0) &#123; if ((absExp &amp; 1) == 1) res *= tmp; tmp *= tmp; absExp &gt;&gt;= 1; &#125; return exponent &gt; 0 ? res : 1 / res; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题15：二进制中1的个数]]></title>
+    <url>%2F2018%2F03%2F29%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9815%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6%E4%B8%AD1%E7%9A%84%E4%B8%AA%E6%95%B0%2F</url>
+    <content type="text"><![CDATA[题目：输入一个整数，输出该数二进制表示中 1 的个数。其中负数用补码表示。 实现12345678910public class Solution &#123; public int NumberOf1(int n) &#123; int count = 0; while (n != 0) &#123; n = n &amp; (n - 1); count++; &#125; return count; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题10-4：矩形覆盖]]></title>
+    <url>%2F2018%2F03%2F29%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9810-4%EF%BC%9A%E7%9F%A9%E5%BD%A2%E8%A6%86%E7%9B%96%2F</url>
+    <content type="text"><![CDATA[题目：我们可以用 2*1 的小矩形横着或者竖着去覆盖更大的矩形。请问用 n 个 2*1 的小矩形无重叠地覆盖一个 2*n 的大矩形，总共有多少种方法？ 实现123456789101112131415161718192021public class Solution &#123; public int RectCover(int target) &#123; // 特殊输入检查 if (target == 0) return 0; if (target == 1) return 1; if (target == 2) return 2; // 动态规划 f(n)=f(n-1)+f(n-2) int a = 1, b = 2; int tmp; for (int i = 3; i &lt;= target; i++) &#123; tmp = a + b; a = b; b = tmp; &#125; return b; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【数据挖掘】标准化或归一化]]></title>
+    <url>%2F2018%2F03%2F23%2F%E3%80%90%E6%95%B0%E6%8D%AE%E6%8C%96%E6%8E%98%E3%80%91%E6%A0%87%E5%87%86%E5%8C%96%E6%88%96%E5%BD%92%E4%B8%80%E5%8C%96%2F</url>
+    <content type="text"><![CDATA[本篇博文主要想谈一谈标准化或归一化。 细心的读者会发现在谈到标准化和归一化的时候，我使用的连词是“或”。原因在于，我认为两者并没有什么不同。很多人将标准化和归一化区分开来，实际上归一化和标准化都是 Normalization 的一种翻译，指的其实是同一个东西。下文中将使用标准化一词。 标准化是什么在数据挖掘中，标准化是将数据按比例缩放，使之落入一个小的特定区间。 标准化的作用不同的特征往往具有不同的量纲和量纲单位，这样的情况会影响到数据分析的结果，为了消除特征之间的量纲影响，需要进行数据标准化处理，以解决数据特征之间的可比性。原始数据经过数据标准化处理后，各指标处于同一数量级，适合进行综合对比分析。 标准化的方法标准化的方法有很多种，以下是对不同的标准化方法之间的介绍和比较：]]></content>
+      <categories>
+        <category>数据挖掘</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【Hexo】文章置顶]]></title>
+    <url>%2F2018%2F03%2F23%2F%E3%80%90Hexo%E3%80%91%E6%96%87%E7%AB%A0%E7%BD%AE%E9%A1%B6%2F</url>
+    <content type="text"><![CDATA[本篇博文主要会谈一谈如何在 Hexo 中将文章置顶。 文章置顶首先，安装支持文章置顶的软件。打开命令行，输入以下指令： 12npm uninstall hexo-generator-index --savenpm install hexo-generator-index-pin-top --save 然后，在需要置顶的文章的 Front-matter 中加入 top: true 即可。比如，置顶这篇文章的改动如下： 1234567---title: 【数据挖掘比赛】企业经营退出风险预测date: 2018-02-07 13:06:44categories:- 数据挖掘比赛top: true--- 这样就能够将文章置顶了。 置顶标志但是，文章被置顶之后，没有任何置顶标志，这样会让人觉得怪怪的。如何添加置顶标志呢？ 打开 /themes/next/layout/_macro 目录下的 post.swig 文件，定位到 &lt;div class=&quot;post-meta&quot;&gt; 标签下面，插入以下代码： 12345&#123;% if post.top %&#125; &lt;i class="fa fa-thumb-tack"&gt;&lt;/i&gt; &lt;font color=7D26CD&gt;置顶&lt;/font&gt; &lt;span class="post-meta-divider"&gt;|&lt;/span&gt;&#123;% endif %&#125; 插入的结果如下所示： 1234567&lt;div class="post-meta"&gt; &#123;% if post.top %&#125; &lt;i class="fa fa-thumb-tack"&gt;&lt;/i&gt; &lt;font color=7D26CD&gt;置顶&lt;/font&gt; &lt;span class="post-meta-divider"&gt;|&lt;/span&gt; &#123;% endif %&#125; &lt;span class="post-time"&gt; 这样便能添加置顶标志了，最终实现的效果如下：]]></content>
+      <categories>
+        <category>Hexo</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题11：旋转数组的最小数字]]></title>
+    <url>%2F2018%2F03%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9811%EF%BC%9A%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%B0%8F%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[题目：把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个非递减排序的数组的一个旋转，输出旋转数组的最小元素。例如数组 {3, 4, 5, 1, 2} 为 {1, 2, 3, 4, 5} 的一个旋转，该数组的最小值为 1。 实现1234567891011121314151617181920212223242526272829303132333435363738import java.util.ArrayList;public class Solution &#123; public int minNumberInRotateArray(int[] array) &#123; // 特殊输入的检查 if (array == null || array.length == 0) return 0; if (array.length == 1) return array[0]; // 如果数组的第一个值小于最后一个值，就返回第一个值 int lo = 0, hi = array.length - 1; if (array[lo] &lt; array[hi]) &#123; return array[0]; &#125; // 如果数组的第一个值大于最后一个值，就二分查找 if (array[lo] &gt; array[hi]) &#123; int mid; while(lo &lt;= hi) &#123; mid = lo + (hi - lo) / 2; if (array[mid] &gt; array[mid + 1]) return array[mid + 1]; if (array[mid] &lt;= array[hi]) hi = mid; else lo = mid; &#125; &#125; // 如果数组的第一个值等于最后一个值，穷举 int min = Integer.MAX_VALUE; for (int i = 0; i &lt; array.length; i++) &#123; if (min &gt; array[i]) min = array[i]; &#125; return min; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题10-3：青蛙变态跳台阶问题]]></title>
+    <url>%2F2018%2F03%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9810-3%EF%BC%9A%E9%9D%92%E8%9B%99%E5%8F%98%E6%80%81%E8%B7%B3%E5%8F%B0%E9%98%B6%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[题目：一只青蛙一次可以跳上 1 级台阶，也可以跳上 2 级……它也可以跳上 n 级。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。 实现12345678910public class Solution &#123; public int JumpFloorII(int target) &#123; // 特殊输入检查 if (target &lt;= 0) return 0; // f(n) = f(n-1) + f(n-2) + ... + f(1) + 1 = 2^(n-1) return 1 &lt;&lt; (target - 1); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题10-2：青蛙跳台阶问题]]></title>
+    <url>%2F2018%2F03%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9810-2%EF%BC%9A%E9%9D%92%E8%9B%99%E8%B7%B3%E5%8F%B0%E9%98%B6%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[题目：一只青蛙一次可以跳上 1 级台阶，也可以跳上 2 级。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。 实现123456789101112131415161718192021public class Solution &#123; public int JumpFloor(int target) &#123; // 特殊输入检查 if (target &lt;= 0) return 0; if (target == 1) return 1; if (target == 2) return 2; // 动态规划 int a = 1, b = 2; int tmp; for (int i = 3; i &lt;= target; i++) &#123; tmp = a + b; a = b; b = tmp; &#125; return b; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题10-1：求斐波那契数列的第n项]]></title>
+    <url>%2F2018%2F03%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9810-1%EF%BC%9A%E6%B1%82%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97%E7%9A%84%E7%AC%ACn%E9%A1%B9%2F</url>
+    <content type="text"><![CDATA[题目：大家都知道斐波那契数列，现在要求输入一个整数 n，请你输出斐波那契数列的第 n 项。 实现12345678910111213141516171819public class Solution &#123; public int Fibonacci(int n) &#123; // 特殊输入检查 if (n &lt;= 0) return 0; if (n == 1 || n == 2) return 1; // 动态规划 int a = 1, b = 1; int tmp; for (int i = 3; i &lt;= n; i++) &#123; tmp = a + b; a = b; b = tmp; &#125; return b; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题9：用两个栈实现队列]]></title>
+    <url>%2F2018%2F03%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%989%EF%BC%9A%E7%94%A8%E4%B8%A4%E4%B8%AA%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97%2F</url>
+    <content type="text"><![CDATA[题目：用两个栈来实现一个队列，完成队列的 Push 和 Pop 操作。 队列中的元素为 int 类型。 实现123456789101112131415161718192021import java.util.Stack;public class Solution &#123; Stack&lt;Integer&gt; stack1 = new Stack&lt;Integer&gt;(); // 入 Stack&lt;Integer&gt; stack2 = new Stack&lt;Integer&gt;(); // 出 public void push(int node) &#123; stack1.push(node); &#125; public int pop() &#123; if (!stack2.empty()) return stack2.pop(); while(!stack1.empty()) &#123; stack2.push(stack1.pop()); &#125; return stack2.pop(); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题7：重建二叉树]]></title>
+    <url>%2F2018%2F03%2F21%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%987%EF%BC%9A%E9%87%8D%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91%2F</url>
+    <content type="text"><![CDATA[题目：输入某二叉树的前序遍历和中序遍历的结果，请重建出该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。例如输入前序遍历序列 {1, 2, 4, 7, 3, 5, 6, 8} 和中序遍历序列 {4, 7, 2, 1, 5, 3, 8, 6}，则重建二叉树并返回。 实现1234567891011121314151617181920212223242526272829303132333435363738394041/** * Definition for binary tree * public class TreeNode &#123; * int val; * TreeNode left; * TreeNode right; * TreeNode(int x) &#123; val = x; &#125; * &#125; */public class Solution &#123; public TreeNode reConstructBinaryTree(int [] pre,int [] in) &#123; // 特殊输入检查 if (pre == null || in == null || pre.length == 0 || in.length == 0 || pre.length != in.length) return null; // 递归的生成树 return reConstructBinaryTreeRecursive(pre, in, 0, pre.length - 1, 0, in.length - 1); &#125; private TreeNode reConstructBinaryTreeRecursive(int[] pre, int[] in, int preLo, int preHi, int inLo, int inHi) &#123; // 递归退出边界 if (preLo &gt; preHi || inLo &gt; inHi) return null; // 首先构造当前节点 TreeNode n = new TreeNode(pre[preLo]); // 然后构造左右子树 for (int i = inLo; i &lt;= inHi; i++) &#123; if (in[i] == pre[preLo]) &#123; n.left = reConstructBinaryTreeRecursive(pre, in, preLo + 1, preLo + i - inLo, inLo, i - 1); n.right = reConstructBinaryTreeRecursive(pre, in, preLo + i - inLo + 1, preHi, i + 1, inHi); break; &#125; &#125; return n; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题6：从尾到头打印链表]]></title>
+    <url>%2F2018%2F03%2F21%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%986%EF%BC%9A%E4%BB%8E%E5%B0%BE%E5%88%B0%E5%A4%B4%E6%89%93%E5%8D%B0%E9%93%BE%E8%A1%A8%2F</url>
+    <content type="text"><![CDATA[题目：输入一个链表，从尾到头打印链表每个节点的值。 实现12345678910111213141516171819202122232425262728293031323334/*** public class ListNode &#123;* int val;* ListNode next = null;** ListNode(int val) &#123;* this.val = val;* &#125;* &#125;**/import java.util.ArrayList;public class Solution &#123; public ArrayList&lt;Integer&gt; printListFromTailToHead(ListNode listNode) &#123; ArrayList&lt;Integer&gt; result = new ArrayList&lt;&gt;(); // 特殊输入检查 if (listNode == null) return result; // 递归访问链表节点 recursiveVisitListNode(listNode, result); return result; &#125; private void recursiveVisitListNode(ListNode n, ArrayList&lt;Integer&gt; result) &#123; if (n == null) return; recursiveVisitListNode(n.next, result); result.add(n.val); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题5：替换空格]]></title>
+    <url>%2F2018%2F03%2F21%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%985%EF%BC%9A%E6%9B%BF%E6%8D%A2%E7%A9%BA%E6%A0%BC%2F</url>
+    <content type="text"><![CDATA[题目：请实现一个函数，将一个字符串中的空格替换成 “%20”。例如，当字符串为 We Are Happy，则经过替换之后的字符串为 We%20Are%20Happy。 实现123456789101112131415161718192021222324252627282930public class Solution &#123; public String replaceSpace(StringBuffer str) &#123; // 特殊输入检查 if (str == null || str.length() == 0) return ""; char[] strCharArr = str.toString().toCharArray(); // 统计空格数量 int spaceNum = 0; for (int i = 0; i &lt; strCharArr.length; i++) if (strCharArr[i] == ' ') spaceNum++; // 构造新字符数组 char[] repStrCharArr = new char[strCharArr.length + spaceNum * 2]; int j = 0; for (int i = 0; i &lt; strCharArr.length; i++) &#123; if (strCharArr[i] == ' ') &#123; repStrCharArr[j++] = '%'; repStrCharArr[j++] = '2'; repStrCharArr[j++] = '0'; continue; &#125; repStrCharArr[j++] = strCharArr[i]; &#125; return String.valueOf(repStrCharArr); &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题4：二维数组中的查找]]></title>
+    <url>%2F2018%2F03%2F21%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%984%EF%BC%9A%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE%2F</url>
+    <content type="text"><![CDATA[题目：在一个二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。 实现1234567891011121314151617181920212223242526public class Solution &#123; public boolean Find(int target, int [][] array) &#123; // 特殊输入的检查 if (array == null || array.length &lt; 1 || array[0].length &lt; 1) return false; int rows = array.length; int columns = array[0].length; if (target &lt; array[0][0] || target &gt; array[rows - 1][columns - 1]) return false; // 从右上角开始 int row = 0; int column = columns - 1; // 向左向下查找 while (row &gt;= 0 &amp;&amp; row &lt; rows &amp;&amp; column &gt;= 0 &amp;&amp; column &lt; columns) &#123; if (array[row][column] == target) return true; else if (array[row][column] &lt; target) row++; else column--; &#125; return false; &#125;&#125;]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题57-2：和为s的连续正数序列]]></title>
+    <url>%2F2018%2F03%2F06%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9857-2%EF%BC%9A%E5%92%8C%E4%B8%BAs%E7%9A%84%E8%BF%9E%E7%BB%AD%E6%AD%A3%E6%95%B0%E5%BA%8F%E5%88%97%2F</url>
+    <content type="text"><![CDATA[题目：输入一个正数 s，打印出所有和位 s 的连续正数序列（至少含有两个数）。例如，输入 15，由于 1+2+3+4+5=4+5+6=7+8=15，所以打印出这 3 个连续序列 1~5、4~6 和 7~8。 思路 1：穷举最直观的思路是：穷举 1~s/2 之间的数对，验证数对中的连续正数序列和是否等于 s。这个算法的时间复杂度是 $O(n^2)$。我们需要思考更快的方法。 思路 2：左右逢源这个思路是：定义两个指针，左指针右移能使和变小，右指针右移能使和变大；初始化左右指针为 1 和 2；使右指针右移，左右指针所指的数字的连续正数序列的和会变大，当和大于 s 时，左指针右移一位，使得和变小；当和小于 s 时，继续右移右指针，使和变大；当和等于 s 时，我们就找到了一个连续序列满足要求；直到指针超出边界。这个算法的时间复杂度是 O(n)。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题57-1：和为s的两个数字]]></title>
+    <url>%2F2018%2F03%2F06%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9857-1%EF%BC%9A%E5%92%8C%E4%B8%BAs%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[题目：输入一个递增排序的数组和一个数字 s，在数组中查找两个数，使得它们的和正好是 s。如果有多对数字的和等于 s，则输出任意一对即可。 思路 1：穷举最直观的思路是：穷举数组的数对，验证和是否等于 s。这样的做法的时间复杂度是 $O(n^2)$。我们需要思考更快的算法。 思路 2：左右逢源这个思路是：定义两个确定方向的指针，左指针首先指向最小数字只能往右走，右指针首先指向最大数字只能往左走；验证两个指针指向的数字的和是否等于 s，如果等于则输出这两个数字；如果小于 s 则左指针右移一位；如果大于 s 则右指针左移一位；重复上述操作，知道找到和等于 s 的两个数字。这个算法只用遍历数组一遍，时间复杂度是 O(n)。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题56-2：数组中唯一只出现一次的数字]]></title>
+    <url>%2F2018%2F03%2F06%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9856-2%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E5%94%AF%E4%B8%80%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[题目：在一个数组中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。 思路 1：排序后遍历和上一题一样，最直观的思路是：对数组先排序，然后从头到尾遍历，找出只出现一次的数字。但是这种算法的时间复杂度是 $O(n\,log\,n)$。我们需要思考更快的算法。 思路 2：哈希表另外一种直观的思路是：首先第一次遍历数组，并使用哈希表记录每个数字出现的次数；然后第二次遍历数组，找出次数为 1 的那个数字。这种算法的时间复杂度是 O(n)，但是需要一个哈希表，空间复杂度是 O(n)。我们需要降低空间复杂度。 思路 3：位计数一个数字的二进制表示中有些位为 0，有些位为 1。因此如果这个数字出现 3 次，假如我们使用某个位数组记录每一位的和，那么这个位数组中的每个数都能够整除 3。所以这个思路是：使用一个数组记录每个数字的二进制表示中位的和，把数组中所有的数字按位相加并将结果存到位数组中，然后把位数组中的每个数值整除 3，如果能够整除，说明只出现一次的数字在该位上等于 0，否则等于 1，最终还原数字即可。这个算法的时间复杂度是 O(n)；只需要一个容量位 32 的数组，空间复杂度是 O(1)。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题54：二叉搜索树的第k大节点]]></title>
+    <url>%2F2018%2F03%2F02%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9854%EF%BC%9A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E7%AC%ACk%E5%A4%A7%E8%8A%82%E7%82%B9%2F</url>
+    <content type="text"><![CDATA[题目：给定一棵二叉搜索树，请找出其中第 k 大的节点。例如，在图 6.1 中的二叉搜索树里，按节点数值大小顺序，第三大节点的值是 4。 思路 1：中序遍历二叉搜索树实际上是一棵有序的二叉树，这道题实际上想考察的就是对树的中序遍历，然后再找出第 k 个节点即可。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题53-3：数组中数值和下标相等的元素]]></title>
+    <url>%2F2018%2F03%2F02%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9853-3%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%80%BC%E5%92%8C%E4%B8%8B%E6%A0%87%E7%9B%B8%E7%AD%89%E7%9A%84%E5%85%83%E7%B4%A0%2F</url>
+    <content type="text"><![CDATA[题目：假设一个单调递增的数组里的每个元素都是整数并且是唯一的。请编程实现一个函数，找出数组中任意一个数值等于其下标的元素。例如，在数组 {-3, -1, 1, 3, 5} 中，数字 3 和它的下标相等。 思路 1：遍历最直观的思路是：从左到右遍历有序数组，直到找到数字与下标相等的数字。该算法的时间复杂度是 O(n)。我们可以找到更快的算法。 思路 2：二分查找在有序数组中查找数字，首先想到的就是二分查找。思路是：使用二分查找算法找到数字与下标相等的数字。 二分查找的过程如下：中间的数字与下标比较，如果等于下标，则是我们要找的；如果数字小于下标，说明目标数字在右半段，对右半段进行二分查找；如果数字大于下标，说明数字在左半段，对左半段进行二分查找。 该算法的时间复杂度是 $O(log\,n)$。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题53-2：0~n-1中缺失的数字]]></title>
+    <url>%2F2018%2F03%2F01%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9853-2%EF%BC%9A0-n-1%E4%B8%AD%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%2F</url>
+    <content type="text"><![CDATA[一个长度为 n-1 的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围 0~n-1 之内。在范围 0~n-1 内的 n 个数字中有且只有一个数字不在该数组中，请找出这个数字。 思路 1：遍历最直观的思路是：从左到右遍历一遍数组，比较数字是否等于下标，找出第一个数字不等于下标的数字，其下标就是我们要找的。该算法的时间复杂度是 O(n)。我们还能想出更快的算法。 思路 2：二分查找看到排序的数组，我们就应该想到二分查找。该算法的思路是：使用二分查找算法找出第一个数字不等于下标的数字，其下标就是问题的解。 由于数组是排序的，数组刚开始的一些数字和其下标是相等的，直到出现某个数字，数字比下标小 1，并且其后的数字诸如此类。 二分查找的过程如下：如果中间的数字等于下标，那么目标在右半边；如果中间的数字比下标大 1，那么比较其前面的数字是否也比下标大 1，如果也大 1，说明目标在在左半边；如果不是，说明中间的数字就是目标数字。 该算法的时间复杂度是 $O(log\,n)$。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题51：数组中的逆序对]]></title>
+    <url>%2F2018%2F03%2F01%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9851%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9%2F</url>
+    <content type="text"><![CDATA[题目：在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。例如，在数组 {7, 5, 6, 4} 中，一共存在 5 个逆序对，分别是 (7, 6)、(7, 5)、(7, 4)、(6, 4) 和 (5, 4)。 思路 1：穷举最直接的思路是：遍历数组中的每一个数字，遍历到一个数字时，扫描其后的所有数字，逐个比较大小，记录逆序对数目。这样的做法，需要遍历 n 个数字，然后对其后的 O(n) 个数字再遍历，因此需要 $O(n^2)$ 的时间复杂度。我们需要思考更快的算法。 思路 2：归并排序思路 1 由于需要对 n 个数字其后的 O(n) 个数字再遍历，导致较低的时间效率。我们能不能想到一种算法不对其后的所有数字进行遍历呢？办法就是排序，更确切一点是归并排序。归并排序的过程与计算逆序对的过程完全一致，只需要在归并的过程中记录一下逆序对数即可。整个过程我不详细描述。这个算法的时间复杂度是 $O(n\,log\,n)$；需要一个临时数组拷贝整个输入数组，空间复杂度为 O(n)。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题50-2：字符流中第一个只出现一次的字符]]></title>
+    <url>%2F2018%2F02%2F28%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9850-2%EF%BC%9A%E5%AD%97%E7%AC%A6%E6%B5%81%E4%B8%AD%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%AA%E5%87%BA%E7%8E%B0%E4%B8%80%E6%AC%A1%E7%9A%84%E5%AD%97%E7%AC%A6%2F</url>
+    <content type="text"><![CDATA[题目：请实现一个函数，用来找出字符流中第一个只出现一次的字符。例如，当从字符流中之读出前两个字符“go”时，第一个只出现一次的字符是‘g’；当从该字符流中读出前 6 个字符“google”时，第一个只出现一次的字符是‘l’。 思路 1：哈希表根据上一题的思路：我们可以使用一个容器存储从字符流中读出的字符，并用哈希表记录每个字符出现的次数，当需要调用查找只出现一次的字符时，便扫描一遍存储的字符串找出只出现一次的字符。这样的做法，在读入字符时的时间复杂度是 O(1)，找出只出现一次的字符的时间复杂度是 O(n)；需要一个存储字符的容器和一个哈希表，空间复杂度是 O(n)。我们需要思考更好的算法。 思路 2：记录每个字符的位置这个算法可以这样描述：使用哈希表记录每个字符的位置，当出现重复字符时，便把值置为一个特殊值（例如：-2）；当需要调用查找第一个只出现一次的字符时，只需要遍历整个哈希表，找出值（位置）最小的元素，它的键就是第一个只出现一次的字符。这个算法甚至都不需要存储整个字符串，它的时间复杂度是 O(n)，空间复杂度是 O(1)。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题48：最长不含有重复字符的子字符串]]></title>
+    <url>%2F2018%2F02%2F27%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9848%EF%BC%9A%E6%9C%80%E9%95%BF%E4%B8%8D%E5%90%AB%E6%9C%89%E9%87%8D%E5%A4%8D%E5%AD%97%E7%AC%A6%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2%2F</url>
+    <content type="text"><![CDATA[题目：请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。假设字符串中只包含‘a’~‘z’的字符。例如，在字符串“arabcacfr”中，最长的不含重复字符的子字符串是“acfr”，长度为 4。 思路 1：动态规划这道题很明显是一道动态规划的问题，我们通过举例来分析一下：对于字符串“arabcacfr”， 以第 0 个字符结尾的（从 0 开始计数）所对应最长的不含重复字符的子字符串的长度为 1，是“a” “第 1 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 0 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 2，是“ar” “第 2 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“与第 1 个字符结尾的所对应最长的不含重复字符的子字符串中的重复字符的距离”，2 - 0 = 2，是“ra” “第 3 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 2 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 3，是“rab” “第 4 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 3 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 4，是“rabc” “第 5 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“与第 4 个字符结尾的所对应最长的不含重复字符的子字符串中的重复字符的距离”，5 - 2 = 3，是“bca” “第 6 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“与第 5 个字符结尾的所对应最长的不含重复字符的子字符串中的重复字符的距离”，6 - 4 = 2，是“ac” “第 7 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 7 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 3，是“acf” “第 8 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 7 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 4，是“acfr” 从以上的分析，我们可以观察到：第 i 个字符结尾的所对应最长的不含重复字符的子字符串的长度只与第 i - 1 个字符结尾的所对应最长的不含重复字符的子字符串的长度有关，而且子问题有重叠部分，状态转移方程如下： $$f(i) =\begin{cases}f(i-1)+1, &amp; 第 i 个字符结尾的不在上一个最长不含重复字符的子字符串中\\d, &amp; 第 i 个字符结尾的在上一个最长不含重复字符的子字符串中\end{cases}$$ 其中，f(i) 表示第 i 个字符结尾的所对应最长的不含重复字符的子字符串的长度，d 表示第 i 个字符结尾的与上一个最长不含重复字符的子字符串中的相同字符的距离。 默认使用一个一维数组记录每个字符结尾的子字符串的长度，这里可以优化成只使用一个变量记录最大的长度。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题47：礼物的最大价值]]></title>
+    <url>%2F2018%2F02%2F27%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9847%EF%BC%9A%E7%A4%BC%E7%89%A9%E7%9A%84%E6%9C%80%E5%A4%A7%E4%BB%B7%E5%80%BC%2F</url>
+    <content type="text"><![CDATA[题目：在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格，直到到达棋盘的右下角。给定一个棋盘及其上面的礼物，请计算你最多能拿多少价值的礼物？ 思路 1：动态规划这是一道典型的动态规划的问题，“第 i 行 j 列的格子所对应的礼物的最大价值”= max(“第 i - 1 行 j 列的格子所对应的礼物的最大价值”, “第 i 行 j - 1 列的格子所对应的礼物的最大价值”)。很明显，这是一个带有重复子问题的动态规划，我们将状态转移方程公式化如下： $$f(i,j)=max(f(i-1,j),f(i,j-1))$$ 其中，f(i, j) 表示第 i 行 j 列的格子所对应的礼物的最大价值。 我们默认使用二维数组来记录每一个格子所对应的礼物的最大价值。实际上，这里可以优化，因为第 i 行 j 列的格子所对应的礼物的最大价值只与第 i 行和第 i - 1 的格子所对应的礼物的最大价值有关，因此我们可以只使用一个一维数组来记录子问题的解，最后一步一步的得到最终问题的解。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
+    <title><![CDATA[【剑指Offer】面试题46：把数字翻译成字符串]]></title>
+    <url>%2F2018%2F02%2F27%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9846%EF%BC%9A%E6%8A%8A%E6%95%B0%E5%AD%97%E7%BF%BB%E8%AF%91%E6%88%90%E5%AD%97%E7%AC%A6%E4%B8%B2%2F</url>
+    <content type="text"><![CDATA[题目：给定一个数字，我们按照如下规则把它翻译成字符串：0 翻译成“a”，1 翻译成“b”，……，11 翻译成“l”，……，25 翻译成“z”。一个数字可能有多个翻译。例如，12258 有 5 种不同的翻译，分别是“bccfi”、“bwfi”、“bczi”、“mcfi”和“mzi”。请编程实现一个函数，用来计算一个数字有多少种不同的翻译方法。 思路 1：动态规划这题很明显是一道动态规划的题目，我们可以举例来分析一下：“12258 的翻译种数”=“1225 的翻译种数”；“1225 的翻译种数”=“122 的翻译种数”+“12 的翻译种数”；“122 的翻译种数”=“12 的翻译种数”+“1 的翻译种数”；“12 的翻译种数”=“1 的翻译种数”；“1 的翻译种数=1”。 从以上的分析，我们可以看出，这个问题可以拆分成多个子问题来求解，并且子问题有重叠部分，状态转移方程如下： $$f(i) =\begin{cases}f(i-1)+f(i-2), &amp; 0 \leq c(i-1,i) \leq 25\\f(i-1), &amp; otherwise\end{cases}$$ 其中，f(i) 表示数字从左往右第 i 个的翻译种数，c(i-1, i) 表示数字从左往右第 i - 1 和第 i 个字符拼接后的数字（例如：12258 的 c(1, 2)=22）。]]></content>
+      <categories>
+        <category>剑指Offer</category>
+      </categories>
+  </entry>
+  <entry>
     <title><![CDATA[【剑指Offer】面试题44：数字序列中某一位的数字]]></title>
     <url>%2F2018%2F02%2F22%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9844%EF%BC%9A%E6%95%B0%E5%AD%97%E5%BA%8F%E5%88%97%E4%B8%AD%E6%9F%90%E4%B8%80%E4%BD%8D%E7%9A%84%E6%95%B0%E5%AD%97%2F</url>
     <content type="text"><![CDATA[题目：数字以 012345678912131415… 的格式序列化到一个字符序列中。在这个序列中，第 5 位（从 0 开始计数）是 5，第 13 位是 1，第 19 位是 4，等等。请写一个函数，求任意第 n 位对应的数字。 思路 1：穷举最直接的思路是：从 0 开始逐个枚举数字，累加数字的位数：当位数小于 n 时，继续枚举数字；当位数等于或大于 n 时，则说明该数字中的某一位就是第 n 位对应的数字，然后找出其中所对应的那一位数字。 这个算法是极为简单的思路，时间复杂度可能达不到面试官的要求，我们还需要思考更快的算法。 思路 2：分析例子找规律我们一定要从 0 开始一个一个枚举数字吗？不一定。在到我们想要的数字之前，很多数字都是可以忽略的。基于这个想法，我们来分析具体的例子，看看如何忽略大部分不需要枚举的数字。为了说清楚这个算法，我们取 n=1001。因此，我们需要找出第 1001 位对应的数字。 0~9 这 10 个数字是一位数，$1001-10=991 \geq 0$，因此我们可以忽略这 10 个数字。我们从其后搜索第 991 位 10~99 这 90 个数字是二位数，$991-90*2=811 \geq 0$，因此我们也可以忽略这 90 个数字。我们从其后搜索第 811 位 100~999 这 900 个数字是三位数，$811-900*3=-1889&lt;0$，因此我们要找的数字肯定是出现在 100~999 中。 由于 $811=270*3+1$，因此我们要找的数字是在 100~999 中的第 270 个（从 0 开始计数）数的第 1 位（从 0 开始计数），所以 1001 位对应的数字是 7（370 中的中间一位） 根据以上例子的分析，我们可以将思路进行总结：首先找出是几位数，然后找出是哪个数，最后找出是这个数中的第几位。这个算法的时间复杂度小于 $O(log\,n)$，明显快于上一种算法。]]></content>
@@ -9,41 +473,9 @@
       </categories>
   </entry>
   <entry>
-    <title><![CDATA[【剑指Offer】面试题43：1~n整数中1出现的次数]]></title>
-    <url>%2F2018%2F02%2F20%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9843%EF%BC%9A1-n%E6%95%B4%E6%95%B0%E4%B8%AD1%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0%2F</url>
-    <content type="text"><![CDATA[题目：输入一个整数 n，求 1~n 这 n 个整数的十进制表示中 1 出现的次数。例如，输入 12，1~12 这些整数中包含 1 的数字有 1、10、11 和 12，1 一共出现了 5 次。 思路 1：穷举最直接的思路就是：遍历 1~n，找出每个数字中 1 出现的次数。如何找出某个数字中 1 出现的次数呢？对 10 求余，判断数字个位数是否为一，如果结果等于 1 则数字的个位数为 1，否则数字的个位数不为 1；如果这个数字大于 10，则除以 10 之后再进行求余操作。 我们来分析这个算法的时间复杂度，n 这个数字的十进制表示的长度为 $log_{10 }n$，因此求余除法操作的时间复杂度是 O(logn)，我们需要遍历 n 次，因此整个算法的时间复杂度是 O(nlogn)。这样的时间复杂度比较高，我们需要思考更快的算法。 思路 2：排列我们把 n 设置的大一些，让 n=21345，以便于之后的分析。为了更好的阐述这个算法，我们先来就具体的例子来分析一遍。 我们首先把分析对象分成两部分，1~21345 分成 1~19999 和 20000~21345 先对第一部分 1~19999 进行分析。计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数。因此，1~19999 中，当万位为 1 时其余 4 位为任意数字的排列的个数为 $10*10*10*10=10^4=10000$；当千位为 1 时，万位只能取 0 或 1，其他位取任意数字，的排列的个数为 $2*10*10*10=2000$；同理，百位为 1、十位为 1、个位为 1 的排列次数都是 $2*10*10*10=2000$。因此，1~19999 中，总的排列的个数为 $10000+2000*4=18000$ 然后对第二部分 20000~21345 进行分析，因为我们将 1 出现的次数理解成十进制表示中某一位为 1 的排列的个数，所以 20000~21345 可以转换成 0~1345。于是这个部分就变成了求解 1~1345（0 去掉不影响）中 1 出现的次数 对于 1~1345 我们可以根据步骤 1 和 2 递归的求解。把 1~1345 分成 1~999 和 1000~1345。效仿于第 2 步骤的分析，1~999 中 1 出现的次数为 $10*10*10=1000$。1000~1345 可以转换成 1~345 加上 345 次 对于 1~345 我们可以根据步骤 1 和 2 递归的求解。把 1~345 分成 1~299 和 300~345。效仿于第 2 步骤的分析，1~299 中 1 出现的次数为 $10*10+2*3*10=260$。300~345 可以转换成 1~45 对于 1~45 我们可以根据步骤 1 和 2 递归的求解。把 1~45 分成 1~39 和 40~45。效仿于第 2 步骤的分析，1~39 中 1 出现的次数为 $10+4=14$。40~45 可以转换成 1~5 1~5 中 1 出现的次数为 1 因此，1~21345 中 1 出现的次数为 $18000+1000+345+260+14+1=19620$ 根据以上的分析，我们将这个算法进行总结：计算 1 出现的次数实际上可以理解为十进制表示中某一位为 1 的排列的个数，因此我们可以使用递归的方法，将 n 从十进制表示的最高位到最低位一步一步计算 1 出现的次数。这个算法的递归深度是 $log\,n$，其他的操作都是常数级别的，因此总的时间复杂度为 $O(log\,n)$。]]></content>
-      <categories>
-        <category>剑指Offer</category>
-      </categories>
-  </entry>
-  <entry>
-    <title><![CDATA[【剑指Offer】面试题42：连续子数组的最大和]]></title>
-    <url>%2F2018%2F02%2F18%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9842%EF%BC%9A%E8%BF%9E%E7%BB%AD%E5%AD%90%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%A4%A7%E5%92%8C%2F</url>
-    <content type="text"><![CDATA[题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。 例如，输入的数组为 {1, -2, 3, 10, -4, 7, 2, -5}，和最大的子数组为 {3, 10, -4, 7, 2}，因此输出为该子数组的和 18。 思路 1：穷举最直接的思路就是：穷举数组的所有子数组的情况，然后计算它们的和，找出最大的值。子数组的数量为 $\frac{n(n - 1)}{2}$，因此时间复杂度为 $O(n^2)$，这个时间复杂度是不能让人接受的，我们还得想想其他办法。 思路 2：举例分析数组的规律当我们没有什么思路时，我们可以举例来分析一下数组的规律。我们尝试从头到尾的逐个累加数组中的数字。初始化和为 0。 累加第一个数字 1。和为 1 累加第二个数字 -2。和为 -1，小于 0 累加第三个数字 3。和为 2。这个和比第三个数字的值还小，我们舍弃之前的子数组，从当前数字开始重新累加。这时，和为3 从以上分析中，我们可以发现，一旦累加和小于 0 之后，以这个数为结尾的子数组对于求解和最大的子数组就没什么用了，这是应该舍弃，然后从将和归零，重新累加寻找和最大的子数组。 累加第四个数字 10。和为 13 累加第五个数字 -4。和为 9 累加第六个数字 7。和为 16 累加第七个数字 2。和为 18 累加第八个数字 -5。和为 13 每次累加一个数字其实就相当于在子数组中增加一个数字，计算和也就是计算这个子数组的和。从以上的分析中，我们可以发现，当累加到第七个数字时，和最大，此时的子数组为 {3, 10, -4, 7, 2}，该子数组的和 18 就是我们要找的最大和。 因此，我们可以将思路总结一下：从头到尾的累加数组中的数字，当累加和小于 0 时，就舍弃此时的累加并重置和为当前数字；使用一个临时变量记录累加过程中计算的和的最大值。 该算法只需要从头到尾的遍历一遍数组即可，因此时间复杂度是 O(n)。 思路 3：动态规划一旦涉及到求最值的问题，一般都可以用动态规划来解。这道题希望求解最大值，并且求解的是数组的子数组的相关问题，可能会有重叠的子问题，可以使用动态规划来解。 我们使用 f(i) 来表示以数组中第 i 个数字结尾的子数组的最大和，因此我们需要求解数组中以每个数字结尾的子数组的最大和的最大值，也就是 $max \, f(i), \, 0 \leq i \lt n$。状态转移方程满足： $$f(i) =\begin{cases}pData[i], &amp; i=0 \lor f(i-1) \leq 0\\f(i-1) + pData[i], &amp; i \neq 0 \land f(i-1)&gt;0\end{cases}$$ 这个公式表示：如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”。 实际上，你仔细想想，思路 3 和思路 2 在本质上是相同的，只是表达方式不一样。这个思路的时间复杂度同样是 O(n)。]]></content>
-      <categories>
-        <category>剑指Offer</category>
-      </categories>
-  </entry>
-  <entry>
     <title><![CDATA[【剑指Offer】面试题41：数据流中的中位数]]></title>
     <url>%2F2018%2F02%2F17%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9841%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%B5%81%E4%B8%AD%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0%2F</url>
     <content type="text"><![CDATA[题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。 思路 1：没有排序的数组由于数据是从数据流中读出来的，因此数据的个数随着时间的增长而增多，我们需要使用一个数据容器去接收来自数据流中的数据。 最直接的思路是：使用不排序的数组作为数据容器。不排序的意思是，每当从数据流中读取一个数据时，直接将这个数据插入数组的尾部，不做任何操作。这样当我们需要计算数组中的中位数时，我们便可以使用 Partition 的思想，找出数组中的中位数。 使用不排序的数组作为数据容器，插入数据的时间复杂度是 O(1)，找出中位数的时间复杂度是 O(n)。 思路 2：排序的数组这个算法的思路是：使用排序的数组作为数据容器。排序的意思是，每当从数据流中读取一个数据时，插入数组后，数组都要保持排序的状态，也就是说，每次插入数据都需要把比它大的数值往后移动一个位置。在排序完的数组中找出中位数，只需要先判断数组中的元素个数是奇数还是偶数，如果是奇数，那么取出索引为 $\frac{n}{2}$ 的元素即可，否则取出索引为 $\frac{n - 1}{2}$ 和 $\frac{n}{2}$ 的元素加权平均即可。 使用排序的数组作为数据容器，插入数据的时间复杂度是 O(n)，找出中位数的时间复杂度是 O(1)。 思路 3：排序的链表这个算法的思路是：使用排序的链表作为数据容器。当从数据流中读取一个数据时，从表头遍历到表尾，插入新数据保持链表排序。在插入新数据的同时，定义两个指针，分别指向链表中间的节点，当节点个数为奇数时，两个指针指向同一个节点。 使用排序的链表作为数据容器，插入数据的时间复杂度是 O(n)，找出中位数的时间复杂度是 O(1)。 思路 4：二叉搜索树这个算法的思路是：使用二叉搜索树作为数据容器。二叉搜索树是排序好的，而且插入新数据时，平均时间复杂度是 O(logn)。但当二叉搜索树极度不平衡时，二叉搜索树与排序的链表是相似的，插入数据的时间复杂度也提升至 O(n)。 使用二叉搜索树作为数据容器，插入数据的平均时间复杂度是 O(logn)，最差情况的时间复杂度是 O(n)，找出中位数的时间复杂度是 O(logn)，最差情况的时间复杂度是 O(n)。 思路 5：AVL 树和红黑树这个算法的思路是：使用平衡的二叉搜索树（AVL 树或者红黑树）作为数据容器。AVL 树和红黑树都在某种程度上保证了二叉搜索树的左右子树在深度上差异不大，从而使得整棵二叉搜索树平衡。 使用 AVL 树和红黑树作为数据容器，插入数据的时间复杂度是 O(logn)，找出中位数的时间复杂度是 O(1)。 思路 6：最大堆和最小堆之前的思路是希望对从数据流中读出的数据进行从头到尾彻底的排序，然后找出中位数。我们能不能找到一个办法不需要进行从头到尾的彻底的排序呢？当然可以。我们的目的是希望找到中位数，也就是说，比中位数小的数和比中位数大的数并不一定需要排序，只用确保这些数比中位数小或者大就行。 因此，这个算法的思路是：使用最大堆作为比中位数小的数的数据容器，使用最小堆作为中位数大的数的数据容器。最大堆的堆顶是这个数据容器中的最大值，最小堆的堆顶是这个数据容器中的最小值。这时，我们只需要保证两个数据容器的元素个数相差不超过 1，并且最大堆的堆顶小于最小堆的堆顶。 使用最大堆和最小堆作为数据容器，插入数据的时间复杂度是 O(logn)，找出中位数的时间复杂度是 O(1)。]]></content>
-      <categories>
-        <category>剑指Offer</category>
-      </categories>
-  </entry>
-  <entry>
-    <title><![CDATA[【剑指Offer】面试题40：最小的k个数]]></title>
-    <url>%2F2018%2F02%2F16%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9840%EF%BC%9A%E6%9C%80%E5%B0%8F%E7%9A%84k%E4%B8%AA%E6%95%B0%2F</url>
-    <content type="text"><![CDATA[题目：输入 n 个整数，找出其中最小的 k 个数。例如，输入 4、5、1、6、2、7、3、8 这 8 个数字，则最小的 4 个数字是 1、2、3、4。 思路 1：排序最直接的思路是：将这个输入的数组使用排序算法排序，然后前 k 个数字就是最小的 k 个数字。但是这种方法的时间复杂度是 O(nlogn)，比较高，而且需要修改输入的数组，并且不适用于海量数据（海量数据无法一次性读入内存中）。 思路 2：Partition我们一定要将整个数组彻底的排序才能找到最小的 k 个数字吗？不一定，这个算法的思路灵感来源于快速排序。 思路是： 挑选数组中的一个数字，调整数组的顺序，使得比选中的数字小的数字排在它的左边，比选中的数字大的数字排在它的右边 查看这时选中的数字的索引是否等于 k 或者 k+1。如果等于 k，那么这时选中的数字与它左边的数字就是最小的 k 个数；如果等于 k+1，那么这时选中的数字的左边的数字就是最小的 k 个数；否则继续对右边的部分进行递归的搜索 这个算法不需要将整个数据进行彻底的排序，只需要局部的排序就能达到目的。时间复杂度为 O(n)，但是需要修改输入的数组，并且不适用于海量数据。 思路 3：堆和红黑树这个算法的思路其实很自然，就是使用一个数据容器装着最小的 k 个数。具体是： 从头到尾遍历数组 如果数据容器没有装满，就将数字装入数据容器中；如果数据容器装满了，就选出数据容器中最大的数字，拿当前数字与这个最大的数字进行比较，如果当前数字大则抛弃它，如果当前数字小则替换掉最大的数字 当数据容器选择堆或者红黑树时，对数据容器中的元素进行增删查只需要 O(logk) 的时间复杂度，然后我们需要遍历整个数组，因此这个算法的时间复杂度是 O(nlogk)。这个算法不需要修改输入数组，而且可以使用流的方式处理海量数据。]]></content>
-      <categories>
-        <category>剑指Offer</category>
-      </categories>
-  </entry>
-  <entry>
-    <title><![CDATA[【剑指Offer】面试题39：数组中出现次数超过一半的数字]]></title>
-    <url>%2F2018%2F02%2F15%2F%E3%80%90%E5%89%91%E6%8C%87Offer%E3%80%91%E9%9D%A2%E8%AF%95%E9%A2%9839%EF%BC%9A%E6%95%B0%E7%BB%84%E4%B8%AD%E5%87%BA%E7%8E%B0%E6%AC%A1%E6%95%B0%E8%B6%85%E8%BF%87%E4%B8%80%E5%8D%8A%E7%9A%84%E6%95%B0%E5%AD%97%2F</url>
-    <content type="text"><![CDATA[题目：数组中有一个数字出现的次数超过了数组长度的一半，请找出这个数字。例如，输入一个长度为 9 的数组 {1, 2, 3, 2, 2, 2, 5, 4, 2}。由于数组 2 在数组中出现了 5 次，超出数组长度的一半，因此输出 2。 思路 1：排序最直接的思路就是：将这个数组排序，排序完之后数组就是有序的了，然后直接访问这个数组的中位数，也就是索引为 $\frac{n}{2}$ 的元素，就是我们寻找的数字。但是这个算法的时间复杂度比较高，排序所需要的时间复杂度是 O(nlogn)，并且需要修改输入的数组。这个算法能够在面试官刚提出题目之后快速的答上来，可以体现自己思维比较敏捷，但是需要能够提出时间复杂度更小的算法才能够获得面试官的青睐。 思路 2：Partition从上一个思路，我们可以得到启发，实际上我们就是要找到排好序之后索引为 $\frac{n}{2}$ 的元素，也就是中位数。那我们一定要把整个数组完全的排好序吗？这不一定，这个算法的灵感来源于快速排序。 算法思路就是： 我们先选择数组中的一个数字，然后调整数组中数字的顺序，使得比选中的数字小的数字放置于它的左边，比选中的数字大的数字放置于它的右边 判断选中的数字的索引是否等于 $\frac{n}{2}$。如果相等，这个数字就是我们寻找的数字，也就是中位数；如果大于 $\frac{n}{2}$，那么中位数在它的左边，对左边的部分递归的查找；如果小于 $\frac{n}{2}$，那么中位数在它的右边，对右边的部分递归的查找 这样做不需要对整个数组排序，只需要局部的排序就能够达到目的，算法的时间复杂度是 O(n)。但是缺点在于依然需要修改输入的数组。 思路 3：临时变量输入的数组中有一个数字超过了数组长度的一半，也就是说，这个数字的个数比其他所有数字的个数都要多。基于这个特点，我们便产生了一个不需要修改数组的思路。 思路是：我们使用一个临时变量存储数字，另一个临时变量存储次数。从头到尾的遍历数组，如果当前数字与数字变量（也就是之前保存的数字）中的数字相同，次数变量就加 1，否则就减 1；如果次数为 0，那么我们需要将数字变量赋值为当前数字，并把次数变量赋值为 1。由于我们要寻找的数字比其他数字的个数都要多，因此最后在数字变量中存储并且次数变量大于 0 的数字就是我们要寻找的数字。 这个算法只需要从头到尾的遍历一遍数组，因此算法的时间复杂度是 O(n)，并且不需要修改输入的数组。]]></content>
       <categories>
         <category>剑指Offer</category>
       </categories>

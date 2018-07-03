@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。  思路 1：没有排序的数组由于数据是从数据流中读出来的，因此数据的个数随着时间的增长而增多，我们需要使用一个数据容器去接收来自数据流中的数据。 最直接的思路是：使用不排序的数组作为数据容器。不排序的意思是">
+<meta name="description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【剑指Offer】面试题41：数据流中的中位数">
 <meta property="og:url" content="http://shawnyxiao.github.io/2018/02/17/【剑指Offer】面试题41：数据流中的中位数/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
-<meta property="og:description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。  思路 1：没有排序的数组由于数据是从数据流中读出来的，因此数据的个数随着时间的增长而增多，我们需要使用一个数据容器去接收来自数据流中的数据。 最直接的思路是：使用不排序的数组作为数据容器。不排序的意思是">
+<meta property="og:description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-02-22T06:41:26.459Z">
+<meta property="og:updated_time" content="2018-07-03T04:05:50.157Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【剑指Offer】面试题41：数据流中的中位数">
-<meta name="twitter:description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。  思路 1：没有排序的数组由于数据是从数据流中读出来的，因此数据的个数随着时间的增长而增多，我们需要使用一个数据容器去接收来自数据流中的数据。 最直接的思路是：使用不排序的数组作为数据容器。不排序的意思是">
+<meta name="twitter:description" content="题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。">
 
 
 
@@ -389,6 +389,7 @@
         <blockquote>
 <p>题目：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。</p>
 </blockquote>
+<a id="more"></a>
 <h2 id="思路-1：没有排序的数组"><a href="#思路-1：没有排序的数组" class="headerlink" title="思路 1：没有排序的数组"></a>思路 1：没有排序的数组</h2><p>由于数据是从数据流中读出来的，因此数据的个数随着时间的增长而增多，我们需要使用一个数据容器去接收来自数据流中的数据。</p>
 <p>最直接的思路是：<strong>使用不排序的数组作为数据容器</strong>。不排序的意思是，每当从数据流中读取一个数据时，直接将这个数据插入数组的尾部，不做任何操作。这样当我们需要计算数组中的中位数时，我们便可以使用 Partition 的思想，找出数组中的中位数。</p>
 <p>使用不排序的数组作为数据容器，插入数据的时间复杂度是 O(1)，找出中位数的时间复杂度是 O(n)。</p>
@@ -427,8 +428,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/02/16/【剑指Offer】面试题40：最小的k个数/" rel="next" title="【剑指Offer】面试题40：最小的k个数">
-                <i class="fa fa-chevron-left"></i> 【剑指Offer】面试题40：最小的k个数
+              <a href="/2018/02/07/【数据挖掘比赛】企业经营退出风险预测/" rel="next" title="【数据挖掘比赛】企业经营退出风险预测">
+                <i class="fa fa-chevron-left"></i> 【数据挖掘比赛】企业经营退出风险预测
               </a>
             
           </div>
@@ -437,8 +438,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/02/18/【剑指Offer】面试题42：连续子数组的最大和/" rel="prev" title="【剑指Offer】面试题42：连续子数组的最大和">
-                【剑指Offer】面试题42：连续子数组的最大和 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/02/22/【剑指Offer】面试题44：数字序列中某一位的数字/" rel="prev" title="【剑指Offer】面试题44：数字序列中某一位的数字">
+                【剑指Offer】面试题44：数字序列中某一位的数字 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -520,7 +521,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">62</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -531,7 +532,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
