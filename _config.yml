@@ -80,7 +80,6 @@ deploy:
   type: git
   repo:
     github: git@github.com:ShawnyXiao/ShawnyXiao.github.io.git
-    coding: git@git.coding.net:ShawnyXiao/ShawnyXiao.coding.me.git
   branch: [master]
 
 # Local seach
