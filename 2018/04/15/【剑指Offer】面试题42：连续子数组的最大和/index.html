@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="肖小粤的啵嗑">
 <meta property="og:description" content="题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-07-03T04:05:50.157Z">
+<meta property="og:updated_time" content="2018-07-03T04:05:50.158Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【剑指Offer】面试题42：连续子数组的最大和">
 <meta name="twitter:description" content="题目：输入一个整型数组，数组里有正数也有负数。数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。要求时间复杂度为 O(n)。">
@@ -412,8 +412,12 @@
 <p>该算法只需要从头到尾的遍历一遍数组即可，因此时间复杂度是 O(n)。</p>
 <h2 id="思路-3：动态规划"><a href="#思路-3：动态规划" class="headerlink" title="思路 3：动态规划"></a>思路 3：动态规划</h2><p>一旦涉及到求最值的问题，一般都可以用动态规划来解。这道题希望求解最大值，并且求解的是数组的子数组的相关问题，可能会有重叠的子问题，可以使用动态规划来解。</p>
 <p>我们使用 f(i) 来表示以数组中第 i 个数字结尾的子数组的最大和，因此我们需要求解数组中以每个数字结尾的子数组的最大和的最大值，也就是 $max \, f(i), \, 0 \leq i \lt n$。状态转移方程满足：</p>
-<p>$$<br>f(i) =<br>\begin{cases}<br>pData[i], &amp; i=0 \lor f(i-1) \leq 0\\<br>f(i-1) + pData[i], &amp; i \neq 0 \land f(i-1)&gt;0<br>\end{cases}<br>$$</p>
-<p>这个公式表示：<strong>如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”</strong>。</p>
+<script type="math/tex; mode=display">
+f(i) =
+\begin{cases}
+pData[i], & i=0 \lor f(i-1) \leq 0\\\
+f(i-1) + pData[i], & i \neq 0 \land f(i-1)>0
+\end{cases}</script><p>这个公式表示：<strong>如果第 i-1 个数字结尾的子数组的和小于 0，那么第 i 个数字结尾的子数组就舍弃之前的数字，只包含第 i 个数字，此时的和为第 i 个数字本身；否则，“第 i 个数字结尾的子数组的和” = “第 i-1 个数字结尾的子数组的和” + “第 i 个数字”</strong>。</p>
 <p>实际上，你仔细想想，思路 3 和思路 2 在本质上是相同的，只是表达方式不一样。这个思路的时间复杂度同样是 O(n)。</p>
 <h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">FindGreatestSumOfSubArray</span><span class="params">(<span class="keyword">int</span>[] array)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 特殊输入的检查</span></span><br><span class="line">        <span class="keyword">if</span> (array == <span class="keyword">null</span> || array.length == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (array.length == <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> array[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 动态规划</span></span><br><span class="line">        <span class="keyword">int</span> max = array[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> lastSum = array[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; array.length; i++) &#123;</span><br><span class="line">            lastSum = Math.max(lastSum + array[i], array[i]);</span><br><span class="line">            <span class="keyword">if</span> (max &lt; lastSum)</span><br><span class="line">                max = lastSum;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
@@ -543,7 +547,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

@@ -393,8 +393,12 @@
 <a id="more"></a>
 <h2 id="思路-1：动态规划"><a href="#思路-1：动态规划" class="headerlink" title="思路 1：动态规划"></a>思路 1：动态规划</h2><p>这题很明显是一道动态规划的题目，我们可以举例来分析一下：“12258 的翻译种数”=“1225 的翻译种数”；“1225 的翻译种数”=“122 的翻译种数”+“12 的翻译种数”；“122 的翻译种数”=“12 的翻译种数”+“1 的翻译种数”；“12 的翻译种数”=“1 的翻译种数”；“1 的翻译种数=1”。</p>
 <p>从以上的分析，我们可以看出，这个问题可以拆分成多个子问题来求解，并且子问题有重叠部分，状态转移方程如下：</p>
-<p>$$<br>f(i) =<br>\begin{cases}<br>f(i-1)+f(i-2), &amp; 0 \leq c(i-1,i) \leq 25\\<br>f(i-1), &amp; otherwise<br>\end{cases}<br>$$</p>
-<p>其中，f(i) 表示数字从左往右第 i 个的翻译种数，c(i-1, i) 表示数字从左往右第 i - 1 和第 i 个字符拼接后的数字（例如：12258 的 c(1, 2)=22）。</p>
+<script type="math/tex; mode=display">
+f(i) =
+\begin{cases}
+f(i-1)+f(i-2), & 0 \leq c(i-1,i) \leq 25\\\
+f(i-1), & otherwise
+\end{cases}</script><p>其中，f(i) 表示数字从左往右第 i 个的翻译种数，c(i-1, i) 表示数字从左往右第 i - 1 和第 i 个字符拼接后的数字（例如：12258 的 c(1, 2)=22）。</p>
 
       
     </div>
@@ -523,7 +527,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
