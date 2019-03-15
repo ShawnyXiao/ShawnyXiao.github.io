@@ -82,7 +82,7 @@
 <meta name="description" content="题目：输入一个复杂链表（每个节点中有节点值，以及两个指针，一个指向下一个节点，另一个特殊指针指向任意一个节点），返回结果为复制后复杂链表的 head。（注意，输出结果中请不要返回参数中的节点引用，否则判题程序会直接返回空）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【剑指Offer】面试题35：复杂链表的复制">
-<meta property="og:url" content="http://xiaoxiaoyue.me/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/index.html">
+<meta property="og:url" content="https://shawnyxiao.github.io/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
 <meta property="og:description" content="题目：输入一个复杂链表（每个节点中有节点值，以及两个指针，一个指向下一个节点，另一个特殊指针指向任意一个节点），返回结果为复制后复杂链表的 head。（注意，输出结果中请不要返回参数中的节点引用，否则判题程序会直接返回空）">
 <meta property="og:locale" content="zh-Hans">
@@ -119,7 +119,7 @@
 
 
 
-  <link rel="canonical" href="http://xiaoxiaoyue.me/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/"/>
+  <link rel="canonical" href="https://shawnyxiao.github.io/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/"/>
 
 
 
@@ -286,7 +286,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://xiaoxiaoyue.me/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/">
+    <link itemprop="mainEntityOfPage" href="https://shawnyxiao.github.io/2018/04/07/【剑指Offer】面试题35：复杂链表的复制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="肖小粤">
@@ -519,7 +519,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -590,7 +590,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -606,6 +606,25 @@
 
 
 
+
+<!-- 不蒜子计数器初始化的非官方办法 -->
+
+  <!-- 不蒜子计数初始值纠正 -->
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          var int = setInterval(fixCount, 100);
+          var busuanziSiteUvOffset = parseInt(27850000);
+          var busuanziSitePvOffset = parseInt(7349);
+          function fixCount() {
+              if ($("#busuanzi_container_site_pv").css("display") != "none") {
+                  clearInterval(int);
+                  $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + busuanziSiteUvOffset);
+                  $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + busuanziSitePvOffset);
+              }
+          }
+      });
+  </script>
 
         
 <div class="busuanzi-count">

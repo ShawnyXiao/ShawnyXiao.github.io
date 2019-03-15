@@ -82,7 +82,7 @@
 <meta name="description" content="少一点功利主义的追求多一些不为什么的坚持">
 <meta property="og:type" content="website">
 <meta property="og:title" content="分类">
-<meta property="og:url" content="http://xiaoxiaoyue.me/categories/index.html">
+<meta property="og:url" content="https://shawnyxiao.github.io/categories/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
 <meta property="og:description" content="少一点功利主义的追求多一些不为什么的坚持">
 <meta property="og:locale" content="zh-Hans">
@@ -119,7 +119,7 @@
 
 
 
-  <link rel="canonical" href="http://xiaoxiaoyue.me/categories/"/>
+  <link rel="canonical" href="https://shawnyxiao.github.io/categories/"/>
 
 
 
@@ -293,7 +293,7 @@
         
           <div class="category-all-page">
             <div class="category-all-title">
-                目前共计 7 个分类
+                目前共计 8 个分类
             </div>
             <div class="category-all">
               <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Hexo/">Hexo</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/剑指Offer/">剑指Offer</a><span class="category-list-count">52</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数学题/">数学题</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据挖掘/">数据挖掘</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据挖掘比赛/">数据挖掘比赛</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构与算法/">数据结构与算法</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/编程题/">编程题</a><span class="category-list-count">3</span></li></ul>
@@ -371,7 +371,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -426,7 +426,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -442,6 +442,25 @@
 
 
 
+
+<!-- 不蒜子计数器初始化的非官方办法 -->
+
+  <!-- 不蒜子计数初始值纠正 -->
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          var int = setInterval(fixCount, 100);
+          var busuanziSiteUvOffset = parseInt(27850000);
+          var busuanziSitePvOffset = parseInt(7349);
+          function fixCount() {
+              if ($("#busuanzi_container_site_pv").css("display") != "none") {
+                  clearInterval(int);
+                  $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + busuanziSiteUvOffset);
+                  $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + busuanziSitePvOffset);
+              }
+          }
+      });
+  </script>
 
         
 <div class="busuanzi-count">

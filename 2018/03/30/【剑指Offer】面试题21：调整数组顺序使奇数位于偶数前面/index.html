@@ -82,7 +82,7 @@
 <meta name="description" content="题目：输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前半部分，所有的偶数位于位于数组的后半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面">
-<meta property="og:url" content="http://xiaoxiaoyue.me/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/index.html">
+<meta property="og:url" content="https://shawnyxiao.github.io/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/index.html">
 <meta property="og:site_name" content="肖小粤的啵嗑">
 <meta property="og:description" content="题目：输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有的奇数位于数组的前半部分，所有的偶数位于位于数组的后半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。">
 <meta property="og:locale" content="zh-Hans">
@@ -119,7 +119,7 @@
 
 
 
-  <link rel="canonical" href="http://xiaoxiaoyue.me/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/"/>
+  <link rel="canonical" href="https://shawnyxiao.github.io/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/"/>
 
 
 
@@ -286,7 +286,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://xiaoxiaoyue.me/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/">
+    <link itemprop="mainEntityOfPage" href="https://shawnyxiao.github.io/2018/03/30/【剑指Offer】面试题21：调整数组顺序使奇数位于偶数前面/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="肖小粤">
@@ -519,7 +519,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -590,7 +590,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2019</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -606,6 +606,25 @@
 
 
 
+
+<!-- 不蒜子计数器初始化的非官方办法 -->
+
+  <!-- 不蒜子计数初始值纠正 -->
+  <script src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          var int = setInterval(fixCount, 100);
+          var busuanziSiteUvOffset = parseInt(27850000);
+          var busuanziSitePvOffset = parseInt(7349);
+          function fixCount() {
+              if ($("#busuanzi_container_site_pv").css("display") != "none") {
+                  clearInterval(int);
+                  $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + busuanziSiteUvOffset);
+                  $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + busuanziSitePvOffset);
+              }
+          }
+      });
+  </script>
 
         
 <div class="busuanzi-count">
