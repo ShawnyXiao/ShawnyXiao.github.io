@@ -404,12 +404,8 @@
 <li>“第 8 个字符结尾的所对应最长的不含重复字符的子字符串的长度”=“第 7 个字符结尾的所对应最长的不含重复字符的子字符串的长度”+ 1，等于 4，是“acfr”</li>
 </ol>
 <p>从以上的分析，我们可以观察到：第 i 个字符结尾的所对应最长的不含重复字符的子字符串的长度只与第 i - 1 个字符结尾的所对应最长的不含重复字符的子字符串的长度有关，而且子问题有重叠部分，状态转移方程如下：</p>
-<script type="math/tex; mode=display">
-f(i) =
-\begin{cases}
-f(i-1)+1, & 第 i 个字符结尾的不在上一个最长不含重复字符的子字符串中\\\
-d, & 第 i 个字符结尾的在上一个最长不含重复字符的子字符串中
-\end{cases}</script><p>其中，f(i) 表示第 i 个字符结尾的所对应最长的不含重复字符的子字符串的长度，d 表示第 i 个字符结尾的与上一个最长不含重复字符的子字符串中的相同字符的距离。</p>
+<p>$$<br>f(i) =<br>\begin{cases}<br>f(i-1)+1, &amp; 第 i 个字符结尾的不在上一个最长不含重复字符的子字符串中\\<br>d, &amp; 第 i 个字符结尾的在上一个最长不含重复字符的子字符串中<br>\end{cases}<br>$$</p>
+<p>其中，f(i) 表示第 i 个字符结尾的所对应最长的不含重复字符的子字符串的长度，d 表示第 i 个字符结尾的与上一个最长不含重复字符的子字符串中的相同字符的距离。</p>
 <p>默认使用一个一维数组记录每个字符结尾的子字符串的长度，这里可以优化成只使用一个变量记录最大的长度。</p>
 
       
@@ -634,7 +630,7 @@ d, & 第 i 个字符结尾的在上一个最长不含重复字符的子字符串
   <script>
       $(document).ready(function() {
           var int = setInterval(fixCount, 100);
-          var busuanziSiteUvOffset = parseInt(27850000);
+          var busuanziSiteUvOffset = parseInt(2785);
           var busuanziSitePvOffset = parseInt(7349);
           function fixCount() {
               if ($("#busuanzi_container_site_pv").css("display") != "none") {
